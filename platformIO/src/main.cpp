@@ -2,6 +2,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include <example.h>
+#include <servo_controler.h>
 
 #define LED_PIN 25  // Broche LED pour Raspberry Pi Pico
 
@@ -11,6 +12,7 @@ void exampleTask(void *pvParameters);
 
 void setup() {
     Serial.begin(115200);
+    xbee_setup();
 
     // Création des tâches FreeRTOS
     xTaskCreate(
@@ -53,7 +55,7 @@ void TaskBlink(void *pvParameters) {
 
 void exampleTask(void *pvParameters) {
     while (1) {
-        helloWorld();
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Attendre 1s
+        servo_control();
+        vTaskDelay(pdMS_TO_TICKS(1)); // Attendre 1s
     }
 }
