@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name><![CDATA[terrain_rugby]]></name>
+    <description><![CDATA[Fichier créé en ligne avec le convertisseur GPX2KML de gpstraces.net]]></description>
+    <Style id="rouge">
+      <LineStyle>
+        <color>961400FF</color>
+        <width>3</width>
+      </LineStyle>
+    </Style>
+    <Style id="violet">
+      <LineStyle>
+        <color>FFEE58FF</color>
+        <width>3</width>
+      </LineStyle>
+    </Style>
+    <Style id="depart">
+      <IconStyle x="64" y="128" xunits="pixels" yunits="insetPixels">
+        <scale>1.2</scale>
+        <Icon>
+          <href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2161&amp;scale=4</href>
+        </Icon>
+        <hotSpot/>
+      </IconStyle>
+    </Style>
+    <Style id="fin">
+      <IconStyle x="64" y="128" xunits="pixels" yunits="insetPixels">
+        <scale>1.2</scale>
+        <Icon>
+          <href>https://earth.google.com/earth/rpc/cc/icon?color=d32f2f&amp;id=2005&amp;scale=4</href>
+        </Icon>
+        <hotSpot/>
+      </IconStyle>
+    </Style>
+  </Document>
+</kml>
+			
