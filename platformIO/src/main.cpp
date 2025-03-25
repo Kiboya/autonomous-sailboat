@@ -63,6 +63,6 @@ void GpsVersPicoTask(void *pvParameters)
     while (1)
     {
         envoiPositionGpsVersPico();
-        vTaskDelay(pdMS_TO_TICKS(300));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
