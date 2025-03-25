@@ -9,12 +9,13 @@
 void TaskBlink(void *pvParameters);
 void GpsVersPicoTask(void *pvParameters);
 
-GPS m_gps;
-
 void setup()
 {
+    delay(2000);
+
     Serial.begin(115200);
     Serial.println("Initialisation terminée !");
+    gpsInit();
 
     // Création des tâches FreeRTOS
     xTaskCreate(
@@ -61,7 +62,7 @@ void GpsVersPicoTask(void *pvParameters)
 {
     while (1)
     {
-        m_gps.envoiPositionGpsVersPico();
+        envoiPositionGpsVersPico();
         vTaskDelay(pdMS_TO_TICKS(300));
     }
 }
