@@ -77,12 +77,35 @@ void configurerTrameNAV_PVT_I2C()
     delay(1000);
 }
 
+void lireFluxGPS()
+{
+    uint8_t buffer[128];
+    int bytesRead = I2C1Instance.requestFrom(ZED_F9P_I2C_ADDRESS, sizeof(buffer));
+
+    if (bytesRead > 0)
+    {
+        Serial.print("Données UBX reçues : ");
+        for (int i = 0; i < bytesRead; i++)
+        {
+            Serial.print(buffer[i], HEX);
+            Serial.print(" ");
+        }
+        Serial.println();
+    }
+    else
+    {
+        Serial.println("Aucune donnée UBX reçue.");
+    }
+}
+
+
 void gpsInit()
 {
     delay(2000);
 
     I2C1Instance.begin();
     Serial.println("Initialisation I2C terminée.");
+    delay(1000);
 
     // Scan the I2C bus to confirm the GPS module's address
     scanI2C();
@@ -94,62 +117,5 @@ void gpsInit()
 
 void envoiPositionGpsVersPico()
 {
-    uint8_t data[128];
-    uint8_t requestCommand = 0xFF; // requete pour lire via I2C
-    const int maxRetries = 5;      // Maximum number of retries
-    int retryCount = 0;
-
-    while (retryCount < maxRetries)
-    {
-        I2C1Instance.beginTransmission(ZED_F9P_I2C_ADDRESS);
-        I2C1Instance.write(requestCommand);
-        int transmissionResult = I2C1Instance.endTransmission(false);
-        Serial.print("transmissionResult : ");
-        Serial.println(transmissionResult);
-
-        if (transmissionResult == 0)
-        {
-            delay(100);
-
-            int bytesRead = I2C1Instance.requestFrom(ZED_F9P_I2C_ADDRESS, sizeof(data));
-            if (bytesRead > 0)
-            {
-                Serial.print("Nombre d'octets reçus : ");
-                Serial.println(bytesRead);
-
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    data[i] = I2C1Instance.read();
-                }
-
-                Serial.print("Données reçues : ");
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    Serial.print(data[i], HEX);
-                    Serial.print(" ");
-                }
-                Serial.println();
-                return;
-            }
-            else
-            {
-                Serial.println("Aucune donnée reçue.");
-            }
-        }
-        else
-        {
-            Serial.print("Erreur lors de l'envoi de la requête au GPS. Code d'erreur : ");
-            Serial.println(transmissionResult);
-        }
-
-        retryCount++;
-        Serial.print("Nouvelle tentative (");
-        Serial.print(retryCount);
-        Serial.println(")...");
-
-        delay(500); // Wait before retrying
-    }
-
-    Serial.println("Échec après plusieurs tentatives. Vérifiez le GPS.");
-    delay(1000);
+    lireFluxGPS();
 }

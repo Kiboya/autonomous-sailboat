@@ -11,10 +11,11 @@ void GpsVersPicoTask(void *pvParameters);
 
 void setup()
 {
-    delay(2000);
-
     Serial.begin(115200);
     Serial.println("Initialisation terminée !");
+
+    delay(2000);
+
     gpsInit();
 
     // Création des tâches FreeRTOS
@@ -62,7 +63,7 @@ void GpsVersPicoTask(void *pvParameters)
 {
     while (1)
     {
-        envoiPositionGpsVersPico();
+        lireFluxGPS();
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
