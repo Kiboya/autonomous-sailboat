@@ -1,0 +1,10 @@
+Config:
+  Title: interface
+  Containers:
+    - Name: received_value
+      inputs:
+        cap: null
+        orientation: null
+        servo: null
+        current: null
+        target: null

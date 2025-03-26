@@ -1,0 +1,21 @@
+Config:
+  Title: config_interface
+
+  Containers:
+    - Name: correcteur
+      outputs:
+        KP: 0.1
+        KI: 0.1
+        KD: 0.1
+
+    - Name: control
+      outputs:
+        CAP: 0
+
+    - Name: received_value
+      inputs:
+        cap: null
+        orientation: null
+        servo: null
+        current: null
+        target: null
