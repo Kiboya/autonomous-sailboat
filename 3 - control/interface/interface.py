@@ -114,7 +114,7 @@ class Interface:
             if raw_data:
                 with self.xbee_lock:  # 🔒 Sécurisation de l'accès au port série
                     try:
-                        self.xbee.send_message(raw_data.hex())
+                        self.xbee.send_key_value("RTK",raw_data.hex())
                         time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
                     except Exception as e:
                         print(f"Erreur d'envoi RTK : {e}")
