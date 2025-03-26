@@ -2,7 +2,19 @@
 
 TwoWire I2C1Instance(i2c1, 2, 3);
 
-void scanI2C()
+GNSS::GNSS() : myGNSS()
+{
+    // rien pour l'instant
+}
+
+GNSS::~GNSS()
+{
+    // Cleanup if necessary
+    I2C1Instance.end();
+    Serial.println("GNSS instance destroyed.");
+}
+
+void GNSS::scanI2C()
 {
     Serial.println("Scanning I2C bus...");
     for (uint8_t address = 1; address < 127; address++)
@@ -17,9 +29,8 @@ void scanI2C()
     Serial.println("I2C scan complete.");
 }
 
-void activeUBX()
+void GNSS::activeUBX()
 {
-    // Active le protocole UBX sur I2C (CFG-I2COUTPROT-UBX)
     uint8_t enableUBX_I2C[] = {
         0xB5, 0x62,       // Sync chars
         0x06, 0x1A,       // Class (CFG) and ID (I2COUTPROT)
@@ -47,7 +58,7 @@ void activeUBX()
     delay(1000);
 }
 
-void configurerTrameNAV_PVT_I2C()
+void GNSS::configurerTrameNAV_PVT_I2C()
 {
     uint8_t cfgNavPvt[] = {
         0xB5, 0x62,       // Sync chars
@@ -77,29 +88,35 @@ void configurerTrameNAV_PVT_I2C()
     delay(1000);
 }
 
-void lireFluxGPS()
+void GNSS::lireFluxGPS()
 {
-    uint8_t buffer[128];
-    int bytesRead = I2C1Instance.requestFrom(ZED_F9P_I2C_ADDRESS, sizeof(buffer));
-
-    if (bytesRead > 0)
+    Serial.println("debug 3");
+    if (myGNSS.getPVT())
     {
-        Serial.print("Données UBX reçues : ");
-        for (int i = 0; i < bytesRead; i++)
-        {
-            Serial.print(buffer[i], HEX);
-            Serial.print(" ");
-        }
-        Serial.println();
+        Serial.print("debug 4");
+        double latitude = myGNSS.getLatitude() / 1e7;  // Latitude ...
+        double longitude = myGNSS.getLongitude() / 1e7; // ... et longitude en degrés.
+        double altitude = myGNSS.getAltitude() / 1e3;  // Altitude en mètres
+
+        Serial.print("Latitude : ");
+        Serial.print(latitude, 7);
+        Serial.print(", Longitude : ");
+        Serial.print(longitude, 7);
+        Serial.print(", Altitude : ");
+        Serial.print(altitude, 2);
+        Serial.println(" m");
     }
     else
     {
-        Serial.println("Aucune donnée UBX reçue.");
+        Serial.println("debug 10");
+        Serial.println("Pas de données GNSS disponibles.");
     }
+    Serial.println("debug 11");
+    delay(1000);
 }
 
 
-void gpsInit()
+void GNSS::gpsInit()
 {
     delay(2000);
 
@@ -107,15 +124,9 @@ void gpsInit()
     Serial.println("Initialisation I2C terminée.");
     delay(1000);
 
-    // Scan the I2C bus to confirm the GPS module's address
-    scanI2C();
+    //scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
 
-    activeUBX();
+    activeUBX(); // Pour recevoir les trames UBX et non les trames NMEA
 
-    configurerTrameNAV_PVT_I2C();
-}
-
-void envoiPositionGpsVersPico()
-{
-    lireFluxGPS();
+    configurerTrameNAV_PVT_I2C(); // Pour recevoir les trames UBX contenant lattitude, longitude et altitude (NAV_PVT)
 }

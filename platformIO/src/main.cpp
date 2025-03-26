@@ -5,6 +5,8 @@
 
 #define LED_PIN 25  // Broche LED pour Raspberry Pi Pico
 
+GNSS m_GNSS;
+
 // Déclaration des tâches
 void TaskBlink(void *pvParameters);
 void GpsVersPicoTask(void *pvParameters);
@@ -16,7 +18,7 @@ void setup()
 
     delay(2000);
 
-    gpsInit();
+    m_GNSS.gpsInit();
 
     // Création des tâches FreeRTOS
     xTaskCreate(
@@ -63,7 +65,9 @@ void GpsVersPicoTask(void *pvParameters)
 {
     while (1)
     {
-        lireFluxGPS();
+        Serial.println("debug 1");
+        m_GNSS.lireFluxGPS();
+        Serial.println("debug 2");
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
