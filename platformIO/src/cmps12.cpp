@@ -3,8 +3,8 @@
 CMPS12::CMPS12(TwoWire &wire, uint8_t addr) : _wire(wire), _addr(addr) {}
 
 void CMPS12::begin() {
-  _wire.begin();
-  delay(1000); // Stabilisation du bus
+  //_wire.begin();
+  delay(5000); // Stabilisation du bus
 }
 
 uint8_t CMPS12::read8BitRegister(uint8_t reg) {
@@ -48,6 +48,8 @@ uint8_t CMPS12::readCalibrationState() {
 }
 
 void CMPS12::startCalibration() {
+  Serial.print("_addr : ");
+  Serial.println(_addr);
   _wire.beginTransmission(_addr);
   _wire.write(0x00);
   _wire.write(0xF0); // Active le mode calibration
