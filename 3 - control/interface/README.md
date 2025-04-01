@@ -34,5 +34,5 @@ python3 interface.py port=/dev/ttyUSB0 baud_rate=9600 path=interface_config/inte
 |--------------|----------------------------------|----------------|
 | `port`       | Port série du module XBee       | `/dev/ttyUSB0` |
 | `baud_rate`  | Baud rate de la communication XBee | `9600`         |
-| `path`       | Fichier YAML de configuration   | `interface_config/corrector_config.yaml` |
+| `path`       | Fichier YAML de configuration   | `interface_config/interface.yaml` |
 

@@ -12,7 +12,7 @@ class Interface:
         self.yaml_config = yaml_config
         self.entries = {}
         self.checkbox_vars = {}
-        self.xbee_lock = threading.Lock()  # 🔒 Verrou pour éviter les conflits d'écriture
+        self.xbee_lock = threading.Lock()  # Verrou pour éviter les conflits d'écriture
 
         self.init_xbee(port, baud_rate)
         self.init_rtk()
@@ -28,14 +28,17 @@ class Interface:
         self.rtk_thread = threading.Thread(target=self.send_rtk_corrections, daemon=True)
         self.rtk_thread.start()
 
+
     def init_xbee(self, xbee_port, xbee_baud_rate):
         """Initialiser la connexion XBee"""
         self.xbee = Xbee(xbee_port, xbee_baud_rate)
+
 
     def init_rtk(self):
         """Initialiser la connexion au serveur RTK"""
         self.rtk = RTK()
         self.rtk.connect_ntrip()
+
 
     def create_interface(self):
         """Création de la fenêtre principale"""
@@ -58,6 +61,7 @@ class Interface:
                 for name in container["inputs"]:
                     self.create_input_param(container_frame, name)
 
+
     def create_input_param(self, container_frame, name):
         """Créer un champ d'entrée (lecture seule)"""
         param_frame = tk.Frame(container_frame)
@@ -71,12 +75,13 @@ class Interface:
 
         self.entries[name] = entry
 
+
     def create_output_param(self, container_frame, name, value):
         """Créer un champ de sortie"""
         param_frame = tk.Frame(container_frame)
         param_frame.pack(fill='x', padx=5, pady=2)
 
-        tk.Label(param_frame, text=f"{name} : ").pack(side='left')
+        tk.Label(param_frame, text=f"{name.lower()} : ").pack(side='left')
 
         entry = tk.Entry(param_frame)
         entry.insert(0, str(value))
@@ -87,15 +92,17 @@ class Interface:
         entry.bind("<Return>", lambda event, name=name: self.send_output_to_xbee(name))
         entry.bind("<FocusOut>", lambda event, name=name: self.send_output_to_xbee(name))
 
+
     def send_output_to_xbee(self, name):
         """Envoie une mise à jour des valeurs des outputs via XBee"""
         value = self.entries[name].get()
-        with self.xbee_lock:  # 🔒 Empêche l'accès concurrent au port série
+        with self.xbee_lock:  # Empêche l'accès concurrent au port série
             try:
                 self.xbee.send_key_value(name, value)
                 time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
             except Exception as e:
                 print(f"Erreur d'envoi XBee : {e}")
+
 
     def receive_data_from_xbee(self):
         """Recevoir des données XBee et les mettre à jour dans l'interface"""
@@ -107,17 +114,19 @@ class Interface:
                 self.entries[key].insert(0, value)
                 self.entries[key].config(state="readonly")
 
+
     def send_rtk_corrections(self):
         """Lire les corrections RTK et les envoyer en XBee"""
         while True:
             _, raw_data = self.rtk.read_rtk()
             if raw_data:
-                with self.xbee_lock:  # 🔒 Sécurisation de l'accès au port série
+                with self.xbee_lock:  # Sécurisation de l'accès au port série
                     try:
                         self.xbee.send_key_value("RTK",raw_data.hex())
                         time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
                     except Exception as e:
                         print(f"Erreur d'envoi RTK : {e}")
+
 
 def load_yaml_config(yaml_file):
     """Charge la configuration YAML"""
@@ -127,7 +136,7 @@ def load_yaml_config(yaml_file):
 def main():
     args = dict(arg.split('=') for arg in sys.argv[1:])
 
-    path = args.get("path", "interface_config/corrector_config.yaml")
+    path = args.get("path", "interface_config/interface.yaml")
     port_xbee = args.get("port", "COM7")
     baud_rate = args.get("baud_rate", 9600)
 

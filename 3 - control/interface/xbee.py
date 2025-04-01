@@ -14,22 +14,22 @@ class Xbee():
     def send_key_value(self, key, value):
         if key.lower() == "exit":
             self.disconnect()
-        message = key + ":" + str(value)
+        message = key.lower() + ":" + str(value)
         self.serial_xbee.write(message.encode() + b"\n")
-        print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
+        #print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
 
 
     def send_message(self, message):
         if message.lower() == "exit":
             self.disconnect()
         self.serial_xbee.write(message.encode() + b"\n")
-        print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
+        #print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
 
 
     def receive_message(self):
         if self.serial_xbee.in_waiting > 0:
             message = self.serial_xbee.readline().decode('utf-8').strip()
-            print(f"[{time.strftime('%H:%M:%S')}] Message reçu : {message}")
+            #print(f"[{time.strftime('%H:%M:%S')}] Message reçu : {message}")
             return message
         return None
 
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     try:
         while True:
             received_key, received_value = xbee.receive_key_value()
-            if received_key:
-                print(f"Reçu -> Clé: {received_key}, Valeur: {received_value}")
+            # if received_key:
+            #     print(f"Reçu -> Clé: {received_key}, Valeur: {received_value}")
             
             # input_message = input("Entrez un message : ")
             # xbee.send_message(input_message)
