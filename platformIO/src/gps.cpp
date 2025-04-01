@@ -89,7 +89,6 @@ void GNSS::configurerTrameNAV_PVT_I2C()
 
 void GNSS::lireFluxGPS()
 {
-    Serial.println("Entrée dans lireFluxGPS()");
     if (myGNSS.getPVT())
     {
         double latitude = myGNSS.getLatitude() / 1e7;  // Latitude ...
@@ -117,8 +116,16 @@ void GNSS::gpsInit()
     delay(2000);
 
     I2C1Instance.begin();
+
+    if (!myGNSS.begin(I2C1Instance, ZED_F9P_I2C_ADDRESS))
+    {
+        Serial.println("Erreur : Impossible de communiquer avec le ZED-F9P !");
+        while (1); // Bloquer si échec
+    }
     Serial.println("Initialisation I2C terminée.");
+
     delay(1000);
+
 
     scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
 
