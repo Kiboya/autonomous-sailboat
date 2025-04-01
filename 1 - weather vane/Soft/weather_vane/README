@@ -1,4 +1,6 @@
- Utilisation du débogueur sur ESP32C3
+# Guide d'installation et de configuration pour ESP32C3
+
+## Utilisation du débogueur sur ESP32C3
 
 Cette documentation explique comment configurer et utiliser le débogueur pour ESP32C3. Elle est divisée en plusieurs sections pour faciliter la navigation et l'installation.
 

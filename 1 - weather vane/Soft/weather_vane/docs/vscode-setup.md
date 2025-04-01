@@ -33,7 +33,8 @@ Pour créer un premier projet avec PlatformIO pour ESP32-C3, suivez les étapes 
 3. **Configurer le projet** :
    - Une fois le projet créé, ouvrez le fichier `platformio.ini` dans le répertoire du projet.
    - Vérifiez que la configuration correspond à votre carte ESP32-C3. Par exemple :
-     ```
+
+     ``` bash
      [env:esp32c3]
      platform = espressif32
      board = esp32c3
@@ -54,7 +55,7 @@ Pour créer un premier projet avec PlatformIO pour ESP32-C3, suivez les étapes 
 
 Pour activer le débogage avec PlatformIO, vous devez modifier le fichier `platformio.ini` de votre projet afin d'ajouter les paramètres nécessaires. Voici un exemple de configuration pour ESP32-C3 :
 
-```
+``` bash
 [env:esp32c3]
 platform = espressif32
 board = esp32c3
@@ -67,7 +68,8 @@ debug_server =
   board/esp32c3-builtin.cfg
 ```
 
-### Explications des paramètres :
+### Explications des paramètres
+
 - **`build_type = debug`** : Configure le projet pour inclure les symboles de débogage.
 - **`debug_tool = esp-builtin`** : Utilise l'outil de débogage intégré pour ESP32-C3.
 - **`debug_server`** : Spécifie le chemin vers OpenOCD et le fichier de configuration pour ESP32-C3.

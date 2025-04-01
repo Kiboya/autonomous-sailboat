@@ -66,19 +66,19 @@ cp -r $IDF_PATH/examples/get-started/hello_world . # Il sera nécessaire d'avoir
 
 ![Source sdk](../img/source_sdk.png)
 
-2. Configurez le projet en définissant la cible sur `esp32c3`.
+1. Configurez le projet en définissant la cible sur `esp32c3`.
 
 ```bash
 idf.py set-target esp32c3
 ```
 
-3. Compilez le projet en exécutant la commande `idf.py build`.
+1. Compilez le projet en exécutant la commande `idf.py build`.
 
 ![Source sdk](../img/success_build.png)
 
-4. Flashez le projet sur votre carte ESP32C3 en exécutant la commande `idf.py flash`.
+1. Flashez le projet sur votre carte ESP32C3 en exécutant la commande `idf.py flash`.
 
-5. Une fois le flash terminé, ouvrez le moniteur série pour voir la sortie de votre programme en exécutant la commande `idf.py monitor`.  
+1. Une fois le flash terminé, ouvrez le moniteur série pour voir la sortie de votre programme en exécutant la commande `idf.py monitor`.  
    Pour quitter le moniteur série, utilisez la combinaison de touches `Ctrl+]`.
 
 ![Source sdk](../img/hello_world.png)
@@ -96,13 +96,13 @@ Assurez-vous d'installer les dépendances nécessaires en exécutant la commande
 git clone --recursive https://github.com/espressif/openocd-esp32.git
 ```
 
-2. Accédez au répertoire cloné :
+1. Accédez au répertoire cloné :
 
 ```bash
 cd openocd-esp32
 ```
 
-3. Configurez et compilez OpenOCD :
+1. Configurez et compilez OpenOCD :
 
 ```bash
 ./bootstrap
@@ -110,13 +110,13 @@ cd openocd-esp32
 make
 ```
 
-4. Installez OpenOCD sur votre système :
+1. Installez OpenOCD sur votre système :
 
 ```bash
 sudo make install
 ```
 
-5. Vérifiez que l'installation a réussi en exécutant la commande suivante :
+1. Vérifiez que l'installation a réussi en exécutant la commande suivante :
 
 ```bash
 openocd --version
@@ -142,6 +142,7 @@ Vous devez lancer le serveur OpenOCD en indiquant que la cible est un ESP32-C3. 
 ```bash
 openocd -f board/esp32c3-builtin.cfg -c "gdb_memory_map disable"
 ```
+
 Si tout se passe bien, OpenOCD devrait être en attente de connexion GDB sur le port 3333. Vous pouvez maintenant lancer GDB pour déboguer votre programme. 
 
 
