@@ -1,6 +1,7 @@
 #include "BLEClientImpl.h"
 
-BLEClientImpl::BLEClientImpl() {
+BLEClientImpl::BLEClientImpl()
+    : pRemoteService(nullptr), pRemoteCharacteristic(nullptr) {
     Serial.println("Initializing BLE client...");
     BLEDevice::init("");
     pClient = BLEDevice::createClient();
