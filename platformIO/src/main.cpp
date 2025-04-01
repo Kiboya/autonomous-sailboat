@@ -55,9 +55,9 @@ void TaskBlink(void *pvParameters)
     while (1)
     {
         digitalWrite(2, HIGH);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Attendre 1s
+        vTaskDelay(pdMS_TO_TICKS(1000));
         digitalWrite(2, LOW);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Attendre 1s
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -65,9 +65,7 @@ void GpsVersPicoTask(void *pvParameters)
 {
     while (1)
     {
-        Serial.println("debug 1");
         m_GNSS.lireFluxGPS();
-        Serial.println("debug 2");
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

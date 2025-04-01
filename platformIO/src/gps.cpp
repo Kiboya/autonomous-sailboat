@@ -4,12 +4,11 @@ TwoWire I2C1Instance(i2c1, 2, 3);
 
 GNSS::GNSS() : myGNSS()
 {
-    // rien pour l'instant
+
 }
 
 GNSS::~GNSS()
 {
-    // Cleanup if necessary
     I2C1Instance.end();
     Serial.println("GNSS instance destroyed.");
 }
@@ -90,10 +89,9 @@ void GNSS::configurerTrameNAV_PVT_I2C()
 
 void GNSS::lireFluxGPS()
 {
-    Serial.println("debug 3");
+    Serial.println("Entrée dans lireFluxGPS()");
     if (myGNSS.getPVT())
     {
-        Serial.print("debug 4");
         double latitude = myGNSS.getLatitude() / 1e7;  // Latitude ...
         double longitude = myGNSS.getLongitude() / 1e7; // ... et longitude en degrés.
         double altitude = myGNSS.getAltitude() / 1e3;  // Altitude en mètres
@@ -108,10 +106,8 @@ void GNSS::lireFluxGPS()
     }
     else
     {
-        Serial.println("debug 10");
-        Serial.println("Pas de données GNSS disponibles.");
+       Serial.println("Pas de données GNSS disponibles.");
     }
-    Serial.println("debug 11");
     delay(1000);
 }
 
@@ -124,9 +120,9 @@ void GNSS::gpsInit()
     Serial.println("Initialisation I2C terminée.");
     delay(1000);
 
-    //scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
+    scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
 
-    activeUBX(); // Pour recevoir les trames UBX et non les trames NMEA
+    //activeUBX(); // Pour recevoir les trames UBX et non les trames NMEA
 
-    configurerTrameNAV_PVT_I2C(); // Pour recevoir les trames UBX contenant lattitude, longitude et altitude (NAV_PVT)
+    //configurerTrameNAV_PVT_I2C(); // Pour recevoir les trames UBX contenant lattitude, longitude et altitude (NAV_PVT)
 }
