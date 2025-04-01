@@ -2,6 +2,25 @@
 
 Cette documentation explique comment configurer et utiliser le débogueur pour ESP32C3. Elle est divisée en plusieurs sections pour faciliter la navigation et l'installation.
 
+## Récupération de l'environnement de dev et configuration
+
+```bash
+git clone git@github.com:Kiboya/autonomous-sailboat.git
+```
+
+Installation des dépendances du projet
+
+```bash
+sudo apt install -y clang-format doxygen graphviz make npm
+```
+
+Installation de mdl (markdown lint)
+
+```bash
+sudo npm cache clean -f && sudo npm install -g n && sudo n stable
+sudo npm install -g markdownlint-cli
+```
+
 ## Documentation disponible
 
 1. **[Configuration de l'environnement ESP-IDF et OpenOCD](docs/esp-idf-setup.md)**  
