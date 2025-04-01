@@ -122,8 +122,8 @@ void GNSS::gpsInit()
         Serial.println("Erreur : Impossible de communiquer avec le ZED-F9P !");
         while (1); // Bloquer si échec
     }
-    Serial.println("Initialisation I2C terminée.");
 
+    Serial.println("Initialisation du GPS par I2C terminée.");
     delay(1000);
 
 
