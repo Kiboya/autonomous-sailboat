@@ -77,6 +77,8 @@ double calculate_direction(double boat_lat, double boat_lon, double waypoint_lat
     double horizontal_tilt, double vertical_tilt, double compass, double wind_vane) {
     // Calculate the azimuth towards the waypoint
     double azimuth = calculate_azimuth(boat_lat, boat_lon, waypoint_lat, waypoint_lon);
+    // Print the calculated azimuth for debugging purposes
+    Serial.printf("Calculated azimuth: %f\n", azimuth);
 
     // Adjust the wind direction relative to the North by combining compass and wind vane readings
     double wind_direction = fmod(compass + wind_vane, 360.0);
@@ -84,10 +86,14 @@ double calculate_direction(double boat_lat, double boat_lon, double waypoint_lat
     // Define the no-go zone based on the adjusted wind direction
     double min_angle, max_angle;
     define_no_go_zone(wind_direction, &min_angle, &max_angle);
+    Serial.printf("Wind Vane (boat referential): %.2f°\n", wind_vane);
+    Serial.printf("Wind Direction (north referential): %.2f°\n", wind_direction);
+    Serial.printf("No-Go Zone: [%.2f° to %.2f°]\n", min_angle, max_angle);
 
     // Check if the azimuth is outside the no-go zone
     if (!is_in_no_go_zone(azimuth, min_angle, max_angle)) {
         // If the azimuth is not in the no-go zone, return it as the optimal direction
+        Serial.printf("Wind Vane (boat referential):");
         return azimuth;
     }
 
@@ -100,18 +106,4 @@ double calculate_direction(double boat_lat, double boat_lon, double waypoint_lat
     // Return the escape route that is closest to the original azimuth
     return (fabs(escape1 - azimuth) < fabs(escape2 - azimuth)) ? escape1 : escape2;
 }
-
-
-/*
-int main() {
-    double boat_lat = 48.8566, boat_lon = 2.3522;
-    double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
-    double horizontal_tilt = 0.0, vertical_tilt = 0.0;
-    double compass = 90.0, wind_vane = 180.0;
-
-    double direction = calculate_direction(boat_lat, boat_lon, waypoint_lat, waypoint_lon, 
-                                          horizontal_tilt, vertical_tilt, compass, wind_vane);
-    printf("Optimal direction: %.2f°\n", direction);
-    return 0;
-}*/
 
