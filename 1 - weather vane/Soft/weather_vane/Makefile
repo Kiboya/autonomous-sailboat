@@ -24,4 +24,4 @@ clean:          		## Nettoie les fichiers inutilisés.
 
 docs: 				## Génere la documentation Doxygen (HTML).
 	@rm -rf public/
-	cmake --build build --target doxygen-docs
+	doxygen Doxyfile
