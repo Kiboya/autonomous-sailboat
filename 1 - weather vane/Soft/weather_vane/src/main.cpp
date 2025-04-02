@@ -1,20 +1,20 @@
 #include <Arduino.h>
 
-#include "BLEClientImpl.h"  // Include the BLEClientImpl header
+#include "BLEClientImpl.hpp"  // Include the BleClientImpl header
 
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"  // UUID of the test_service
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"  // UUID of the characteristic
+constexpr std::array<char, 37> kServiceUuid = { "4fafc201-1fb5-459e-8fcc-c5c9c331914b" };
+constexpr std::array<char, 37> kCharacteristicUuid = { "beb5483e-36e1-4688-b7f5-ea07361b26a8" };
 
 void setup()
 {
   Serial.begin(115200);
   Serial.println("Initializing BLE...");
 
-  // Create an instance of BLEClientImpl
-  BLEClientImpl bleClient;
+  // Create an instance of BleClientImpl
+  BleClientImpl ble_client;
 
   // Connect to the BLE server
-  if (!bleClient.connectToServer("94:08:53:47:10:60"))
+  if (!ble_client.ConnectToServer("94:08:53:47:10:60"))
   {
     Serial.println("Failed to connect to the server.");
     return;
@@ -22,7 +22,7 @@ void setup()
   Serial.println("Connected to the server.");
 
   // Discover the service
-  if (!bleClient.discoverService(SERVICE_UUID))
+  if (!ble_client.DiscoverService(kServiceUuid.data()))
   {
     Serial.println("Failed to find the service.");
     return;
@@ -30,7 +30,7 @@ void setup()
   Serial.println("Service found.");
 
   // Discover the characteristic
-  if (!bleClient.discoverCharacteristic(CHARACTERISTIC_UUID))
+  if (!ble_client.DiscoverCharacteristic(kCharacteristicUuid.data()))
   {
     Serial.println("Failed to find the characteristic.");
     return;
@@ -38,7 +38,7 @@ void setup()
   Serial.println("Characteristic found.");
 
   // Subscribe to notifications
-  if (bleClient.subscribeToNotifications())
+  if (ble_client.SubscribeToNotifications())
   {
     Serial.println("Subscribed to notifications.");
   }
@@ -48,7 +48,7 @@ void setup()
   }
 
   // Write to the characteristic
-  if (bleClient.writeToCharacteristic("Hello from ESP32-C3!"))
+  if (ble_client.WriteToCharacteristic("Hello from ESP32-C3!"))
   {
     Serial.println("Value written to the characteristic.");
   }
@@ -61,5 +61,6 @@ void setup()
 void loop()
 {
   // Keep the loop running to handle notifications
-  delay(1000);
+  while (true)
+    ;
 }

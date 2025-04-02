@@ -1,7 +1,7 @@
 #ifndef MOCK_BLE_CLIENT_H
 #define MOCK_BLE_CLIENT_H
 
-#include "../src/BLEClientInterface.h"
+#include "BLEClientInterface.h"
 #include <string>
 
 class MockBLEClient : public BLEClientInterface {

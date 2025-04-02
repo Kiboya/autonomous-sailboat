@@ -1,18 +1,19 @@
-#include "BLEClientImpl.h"
+#include "BLEClientImpl.hpp"
 
-BLEClientImpl::BLEClientImpl() : pRemoteService(nullptr), pRemoteCharacteristic(nullptr)
+BleClientImpl::BleClientImpl() : p_client_(BLEDevice::createClient())
 {
   Serial.println("Initializing BLE client...");
   BLEDevice::init("");
-  pClient = BLEDevice::createClient();
   Serial.println("BLE client initialized.");
 }
 
-bool BLEClientImpl::connectToServer(const std::string& serverAddress)
+auto BleClientImpl::ConnectToServer(const std::string& server_address) -> bool
 {
   Serial.print("Attempting to connect to server at address: ");
-  Serial.println(serverAddress.c_str());
-  bool connected = pClient->connect(BLEAddress(serverAddress.c_str()));
+  Serial.println(server_address.c_str());
+  bool connected = false;
+  connected = p_client_->connect(BLEAddress(server_address.c_str()));
+
   if (connected)
   {
     Serial.println("Successfully connected to the server.");
@@ -24,49 +25,53 @@ bool BLEClientImpl::connectToServer(const std::string& serverAddress)
   return connected;
 }
 
-bool BLEClientImpl::discoverService(const std::string& serviceUUID)
+auto BleClientImpl::DiscoverService(const std::string& service_uuid) -> bool
 {
+  bool service_discovered = false;
+
   Serial.print("Discovering service with UUID: ");
-  Serial.println(serviceUUID.c_str());
-  pRemoteService = pClient->getService(BLEUUID(serviceUUID.c_str()));
-  if (pRemoteService)
+  Serial.println(service_uuid.c_str());
+  p_remote_service_ = p_client_->getService(BLEUUID(service_uuid.c_str()));
+
+  service_discovered = (p_remote_service_ != nullptr);
+  if (service_discovered)
   {
     Serial.println("Service discovered successfully.");
-    return true;
   }
   else
   {
     Serial.println("Failed to discover the service.");
-    return false;
   }
+  return service_discovered;
 }
 
-bool BLEClientImpl::discoverCharacteristic(const std::string& characteristicUUID)
+auto BleClientImpl::DiscoverCharacteristic(const std::string& characteristic_uuid) -> bool
 {
-  if (!pRemoteService)
+  if (p_remote_service_ == nullptr)
   {
     Serial.println("Error: Remote service is null. Cannot discover characteristic.");
     return false;
   }
 
   Serial.print("Discovering characteristic with UUID: ");
-  Serial.println(characteristicUUID.c_str());
-  pRemoteCharacteristic = pRemoteService->getCharacteristic(BLEUUID(characteristicUUID.c_str()));
-  if (pRemoteCharacteristic)
+  Serial.println(characteristic_uuid.c_str());
+  p_remote_characteristic_ =
+      p_remote_service_->getCharacteristic(BLEUUID(characteristic_uuid.c_str()));
+  if (p_remote_characteristic_ != nullptr)
   {
     Serial.println("Characteristic discovered successfully.");
     return true;
   }
-  else
-  {
-    Serial.println("Failed to discover the characteristic.");
-    return false;
-  }
+
+  Serial.println("Failed to discover the characteristic.");
+  return false;
 }
 
-bool BLEClientImpl::writeToCharacteristic(const std::string& value)
+auto BleClientImpl::WriteToCharacteristic(const std::string& value) -> bool
 {
-  if (!pRemoteCharacteristic)
+  bool can_write = false;
+
+  if (p_remote_characteristic_ == nullptr)
   {
     Serial.println("Error: Remote characteristic is null. Cannot write value.");
     return false;
@@ -74,49 +79,47 @@ bool BLEClientImpl::writeToCharacteristic(const std::string& value)
 
   Serial.print("Writing to characteristic: ");
   Serial.println(value.c_str());
-  if (pRemoteCharacteristic->canWrite())
+
+  can_write = p_remote_characteristic_->canWrite();
+
+  if (can_write)
   {
-    pRemoteCharacteristic->writeValue(value);
+    p_remote_characteristic_->writeValue(value);
     Serial.println("Value written successfully.");
-    return true;
+    return can_write;
   }
-  else
-  {
-    Serial.println("Failed to write to the characteristic. Writing is not supported.");
-    return false;
-  }
+
+  Serial.println("Failed to write to the characteristic. Writing is not supported.");
+  return can_write;
 }
 
-bool BLEClientImpl::subscribeToNotifications()
+auto BleClientImpl::SubscribeToNotifications() -> bool
 {
-  if (!pRemoteCharacteristic)
+  if (p_remote_characteristic_ == nullptr)
   {
     Serial.println("Error: Remote characteristic is null. Cannot subscribe to notifications.");
     return false;
   }
 
   Serial.println("Subscribing to notifications...");
-  if (pRemoteCharacteristic->canNotify())
+  if (p_remote_characteristic_->canNotify())
   {
-    pRemoteCharacteristic->registerForNotify(
-        [](BLERemoteCharacteristic* pBLERemoteCharacteristic,
-           uint8_t* pData,
+    p_remote_characteristic_->registerForNotify(
+        [](BLERemoteCharacteristic* p_ble_remote_characteristic,
+           uint8_t* p_data,
            size_t length,
-           bool isNotify)
+           bool is_notify)
         {
           Serial.print("Notification received: ");
           for (size_t i = 0; i < length; i++)
           {
-            Serial.print((char)pData[i]);
+            Serial.print((char)p_data[i]);
           }
           Serial.println();
         });
     Serial.println("Subscribed to notifications successfully.");
     return true;
   }
-  else
-  {
-    Serial.println("Failed to subscribe to notifications. Notifications are not supported.");
-    return false;
-  }
+  Serial.println("Failed to subscribe to notifications. Notifications are not supported.");
+  return false;
 }
