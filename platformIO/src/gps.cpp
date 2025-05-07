@@ -91,6 +91,31 @@ void GNSS::lireFluxGPS()
 {
     if (myGNSS.getPVT())
     {
+        if (myGNSS.getRELPOSNED()) // Si on reçois des corrections RTK
+        {
+            uint8_t fixType = myGNSS.packetUBXNAVPVT->data.fixType;
+            uint8_t carrSoln = myGNSS.packetUBXNAVRELPOSNED->data.flags.bits.carrSoln;
+
+            Serial.print("FixType: ");
+            Serial.print(fixType);
+            Serial.print(" | Carrier Solution: ");
+            Serial.print(carrSoln);
+            Serial.print(" -> ");
+
+            if (fixType == 5 && carrSoln == 2)
+            {
+                Serial.println("RTK Fixed");
+            }
+            else if (fixType >= 4 && carrSoln == 1)
+            {
+                Serial.println("RTK Float");
+            }
+            else
+            {
+                Serial.println("Pas de RTK");
+            }
+        }
+
         double latitude = myGNSS.getLatitude() / 1e7;  // Latitude ...
         double longitude = myGNSS.getLongitude() / 1e7; // ... et longitude en degrés.
         double altitude = myGNSS.getAltitude() / 1e3;  // Altitude en mètres
@@ -129,7 +154,7 @@ void GNSS::gpsInit()
 
     scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
 
-    //activeUBX(); // Pour recevoir les trames UBX et non les trames NMEA
-
-    //configurerTrameNAV_PVT_I2C(); // Pour recevoir les trames UBX contenant lattitude, longitude et altitude (NAV_PVT)
+    //myGNSS.setI2COutput(COM_TYPE_UBX); // désactive NMEA, active UBX
+    //myGNSS.setAutoPVT(true); // active NAV-PVT
+    myGNSS.setAutoRELPOSNED(true); // active NAV-RELPOSNED
 }
