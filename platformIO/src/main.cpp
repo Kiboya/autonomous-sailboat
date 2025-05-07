@@ -4,8 +4,13 @@
 #include <example.h>
 #include "cmps12.h"
 #include "qmc5883l.h"
+#include <servoControl.h>
+#include <xbeeImpl.h>
 
-#define LED_PIN 25  // Broche LED pour Raspberry Pi Pico
+
+#define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
+
+servoControl boat;
 
 // Déclaration des tâches existantes
 void TaskBlink(void *pvParameters);
@@ -23,7 +28,8 @@ TwoWire I2C0Instance(i2c0, 4, 5); // Pour le QMC5883L : instance i2c0, SDA = GP4
 CMPS12 cmps12(I2C0Instance, 0x60);
 // QMC5883L qmc5883l(I2C0Instance, 0x0D);
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
 
     // Création des tâches FreeRTOS
@@ -37,47 +43,34 @@ void setup() {
     // );
 
     xTaskCreate(
-      exampleTask,
-      "Example Task",
-      1024,
-      NULL,
-      1,
-      NULL
+        TaskBlink,  // Fonction de la tâche
+        "LED Task", // Nom de la tâche
+        1024,       // Taille de la pile
+        NULL,       // Paramètre
+        1,          // Priorité
+        NULL        // Handle de tâche (inutile ici)
     );
 
-    xTaskCreate(
-      sensorTask,
-      "Sensor Task",
-      2048,  // Taille de pile augmentée pour la gestion I2C et la calibration
-      NULL,
-      1,
-      NULL
-    );
-
-
-    // vTaskStartScheduler();  // Sur Arduino, le scheduler démarre automatiquement
+    // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
+    // vTaskStartScheduler();
 }
 
-void loop() {
-    // Rien ici, FreeRTOS gère les tâches
+void loop()
+{
+    // Rien ici, car FreeRTOS gère les tâches
+
 }
 
 // Tâche pour faire clignoter la LED
-void TaskBlink(void *pvParameters) {
+void TaskBlink(void *pvParameters)
+{
     pinMode(2, OUTPUT);
-    while (1) {
+    while (1)
+    {
         digitalWrite(2, HIGH);
         vTaskDelay(pdMS_TO_TICKS(1000));
         digitalWrite(2, LOW);
         vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
-// Tâche d'exemple existante
-void exampleTask(void *pvParameters) {
-    while (1) {
-        helloWorld();
-        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
 
@@ -127,5 +120,6 @@ void sensorTask(void *pvParameters) {
         //  Serial.println("-------------------------------------------------------");
          
          vTaskDelay(pdMS_TO_TICKS(500));
+
     }
 }
