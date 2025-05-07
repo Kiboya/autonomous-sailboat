@@ -33,17 +33,21 @@ void servoControl::servo_control()
     integral += error;                           // accumulate the error over time
     int adjustment = Kp * error + Ki * integral; // PI control
 
-    // Update servo position with the new adjustment
-    servoAnglePosition = constrain(servoAnglePosition - adjustment, minAngle, maxAngle);
-    ms_position = map(servoAnglePosition, minAngle, maxAngle, minAngle_ms, maxAngle_ms);
-    safranServo.writeMicroseconds(ms_position);
+    // Update safran servo position with the new adjustment
+    servoAnglePosition = constrain(servoAnglePosition - adjustment, min_angle_safran, max_angle_safran);
+    ms_safran_position = map(servoAnglePosition, min_angle_safran, max_angle_safran, min_ms_safran, max_ms_safran);
+    safranServo.writeMicroseconds(ms_safran_position);
+
+    // Update sail servo position with the new adjustment
+    ms_sail_position = map(voileTensionPosition, min_angle_sail, max_angle_sail, min_ms_sail, max_ms_sail);
+    safranServo.writeMicroseconds(ms_sail_position);
 
     // Send value to own XBee
-    xbee.Send(currentAngle, targetAngle, servoAnglePosition, Serial1);
+    xbee.Send(currentTension, currentAngle, targetAngle, servoAnglePosition, Serial1);
 
     // Reset values for the next loop if needed
-    servoAnglePosition = 125;
-    ms_position = 1300;
+    servoAnglePosition = init_angle_safran;
+    ms_safran_position = init_safran;
 }
 
 void servoControl::simulateMovingBoat(int angleDifference)
@@ -103,6 +107,19 @@ void servoControl::getValue(String receivedMessage)
             else
             {
                 Serial.print("cap value: ");
+                Serial.println(value.toInt());
+                targetAngle = value.toInt();
+            }
+        }
+        if (key == "voile")
+        {
+            if (value.toInt() <= 0 || value.toInt() >= 100)
+            {
+                Serial.println("Error: 'voile' must be between 0 and 100. Ignoring invalid value.");
+            }
+            else
+            {
+                Serial.print("voile value: ");
                 Serial.println(value.toInt());
                 targetAngle = value.toInt();
             }

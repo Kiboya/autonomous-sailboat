@@ -8,7 +8,6 @@
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
 servoControl boat;
-xbeeImpl xbee;
 
 // Déclaration des tâches
 void TaskBlink(void *pvParameters);
@@ -64,6 +63,6 @@ void exampleTask(void *pvParameters)
     while (1)
     {
         boat.servo_control();
-        vTaskDelay(pdMS_TO_TICKS(1)); // Attendre 1s
+        vTaskDelay(pdMS_TO_TICKS(1)); // Attendre 1ms
     }
 }

@@ -28,31 +28,40 @@ String xbeeImpl::Read()
         }
         return receivedMessage;
     }
+    return "";
 }
 
-void xbeeImpl::Send(int currentAngle, int targetAngle, int servoAnglePosition, Stream &output)
+void xbeeImpl::Send(int currentTension, int currentAngle, int targetAngle, int servoAnglePosition, Stream &output)
 {
     static int previous_curr = -1;
     static int previous_target = -1;
     static int previous_serv = -1;
+    static int previous_tension = -1;
 
     if (currentAngle != previous_curr)
     {
-        output.print("current:");
+        output.print("current angle:");
         output.println(currentAngle);
         previous_curr = currentAngle;
     }
 
+    if (currentTension != previous_tension)
+    {
+        output.print("current tension:");
+        output.println(currentTension);
+        previous_tension = currentTension;
+    }
+
     if (targetAngle != previous_target)
     {
-        output.print("target:");
+        output.print("target angle:");
         output.println(targetAngle);
         previous_target = targetAngle;
     }
 
     if (servoAnglePosition != previous_serv)
     {
-        output.print("servo:");
+        output.print("servo angle position:");
         output.println(servoAnglePosition);
         previous_serv = servoAnglePosition;
     }
