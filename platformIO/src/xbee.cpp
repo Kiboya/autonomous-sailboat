@@ -14,6 +14,8 @@ int targetAngle = 0;
 float Kp = 1.0;
 float Ki = 1.0;
 String rtk = "";
+String complete_message;
+
 
 void xbee_setup() {
     pinMode(XBee_rssi_pin, INPUT);
@@ -38,8 +40,81 @@ void xbee_setup() {
 }
 
 
-void getValue(String receivedMessage) {
-    Serial.println(receivedMessage);
+// void getValue(String receivedMessage)
+// {
+//     static String previousKey = "";
+//     static String previousValue = "";
+
+//     // Trim whitespace or newlines
+//     receivedMessage.trim();
+
+//     // Ignore empty strings
+//     if (receivedMessage.length() == 0) return;
+
+//     // Find the position of the ':'
+//     int separatorIndex = receivedMessage.indexOf(':');
+//     if (separatorIndex == -1) {
+//         Serial.println("Invalid format. Expected 'key:value'.");
+//         return;
+//     }
+
+//     // Extract key and value
+//     String key = receivedMessage.substring(0, separatorIndex);
+//     String value = receivedMessage.substring(separatorIndex + 1);
+
+//     // Si on collectait les caractères pour un nouveau message et que la clé change, l'envoyer tout de suite
+//     if (previousKey != "" && key != previousKey)
+//     {
+//         if (previousKey == "cap")
+//         {
+//             int val = previousValue.toInt();
+//             if (val > 0 && val < 360)
+//             {
+//                 targetAngle = val;
+//                 Serial.print("cap value: ");
+//                 Serial.println(targetAngle);
+//             }
+//             else
+//             {
+//                 Serial.println("Error: 'cap' must be between 0 and 360. Ignoring invalid value.");
+//             }
+//         }
+//         else if (previousKey == "kp")
+//         {
+//             Kp = previousValue.toFloat();
+//             Serial.print("kp value: ");
+//             Serial.println(Kp);
+//         }
+//         else if (previousKey == "ki")
+//         {
+//             Ki = previousValue.toFloat();
+//             Serial.print("ki value: ");
+//             Serial.println(Ki);
+//         }
+//         else if (previousKey == "rtk")
+//         {
+//             rtk = previousValue;
+//             Serial.print("rtk value: ");
+//             Serial.println(rtk);
+//             sendRTKData(rtk);
+//             Serial.println("rtk binary data sent to GPS");
+//         }
+//         else
+//         {
+//             Serial.print("Invalid key. Expected 'cap', 'kp', 'ki' or 'rtk'. Received: ");
+//             Serial.println(previousKey);
+//         }
+//     }
+//     // Stocker la valeur et la clé pour la prochaine fois
+//     previousKey = key;
+//     previousValue = value;
+// }
+
+void xbee_get_value(String receivedMessage)
+{
+    // Serial.print("StartGetValue---");
+    // Serial.print(receivedMessage);
+    // Serial.println("   ---FinStartGetValue");
     // Trim whitespace or newlines
     receivedMessage.trim();
 
@@ -51,79 +126,102 @@ void getValue(String receivedMessage) {
         String key = receivedMessage.substring(0, separatorIndex);
         String value = receivedMessage.substring(separatorIndex + 1);
 
-        if ()
-        {
-            // Convert value to integer or float depending on the key
-            if (key == "cap") {
-                if (value.toInt() <= 0 || value.toInt() >= 360) {
-                    Serial.println("Error: 'cap' must be between 0 and 360. Ignoring invalid value.");
-                } else {
-                    Serial.print("cap value: ");
-                    Serial.println(value.toInt());
-                    targetAngle = value.toInt();
-                }
+        // Convert value to integer or float depending on the key
+        if (key == "cap") {
+            if (value.toInt() <= 0 || value.toInt() >= 360) {
+                Serial.println("Error: 'cap' must be between 0 and 360. Ignoring invalid value.");
+            } else {
+                Serial.print("cap value: ");
+                Serial.println(value.toInt());
+                targetAngle = value.toInt();
             }
-            else if (key == "ki") {
-                Ki = value.toFloat();
-                Serial.print("ki value: ");
-                Serial.println(Ki);
-            }
-            else if (key == "kp") {
-                Kp = value.toFloat();
-                Serial.print("kp value: ");
-                Serial.println(Kp);
-            }
-            else if (key == "rtk") {
-                rtk = value;
-                Serial.print("rtk value: ");
-                Serial.println(rtk);
-                Serial2.print(rtk);
-                Serial.print("rtk value sended to GPS");
-
-            }
-            else {
-                Serial.printf("Invalid key. Expected 'cap','kp' or 'ki'. Received : %s", key);
-            }
-        } else {
-            Serial.println("Invalid format. Expected 'key:value'.");
         }
+        else if (key == "ki") {
+            Ki = value.toFloat();
+            Serial.print("ki value: ");
+            Serial.println(Ki);
+        }
+        else if (key == "kp") {
+            Kp = value.toFloat();
+            Serial.print("kp value: ");
+            Serial.println(Kp);
+        }
+        else if (key == "rtk") {
+            rtk = value;
+            Serial.println(rtk);
+            Serial2.print(rtk);
+            Serial.println("rtk value sended to GPS");
+
+        }
+        else {
+            Serial.println("Invalid key. Expected 'cap','kp', 'ki' or 'rtk.");
+        }
+    } else {
+        Serial.println("Invalid format. Expected 'key:value'.");
     }
 }
 
-// void sendValue(int currentAngle, int targetAngle, int servoAnglePosition, Stream &output)
+// void xbee_run()
 // {
-//     static int previous_curr = -1;
-//     static int previous_target = -1;
-//     static int previous_serv = -1;
+    // static String receivedMessage = ""; // Variable pour stocker le message reçu
 
-//     if(currentAngle != previous_curr){
-//         output.print("current:");
-//         output.println(currentAngle);
-//         previous_curr = currentAngle;
-//     }
+    // while (Serial1.available())
+    // {
+    //     uint8_t c = Serial1.read(); // Lire un octet depuis XBee
 
-//     if(targetAngle != previous_target){
-//         output.print("target:");
-//         output.println(targetAngle);
-//         previous_target = targetAngle;
-//     }
+    //     // Ajouter l'octet à la chaîne de message
+    //     receivedMessage += (char)c;
 
-//     if(servoAnglePosition != previous_serv){
-//         output.print("servo:");
-//         output.println(servoAnglePosition);
-//         previous_serv = servoAnglePosition;
-//     }
+    //     // Vérifier si la fin d'une balise est atteinte (le caractère ':' pour la balise)
+    //     if (c == ':')
+    //     {
+    //         // Si on a une nouvelle balise, traiter le message
+    //         xbee_create_message(receivedMessage); // Traiter la balise et sa donnée
+    //         receivedMessage = ""; // Réinitialiser pour le prochain message
+    //     }
+
+    //     // Vérifier si on a un message complet
+    //     if (c == '\n')
+    //     { // Si on rencontre un saut de ligne (fin de message)
+    //         getValue(receivedMessage); // Traiter le message complet
+    //         receivedMessage = ""; // Réinitialiser pour le prochain message
+    //     }
+    // }
 // }
 
-
-void xbee_run() {
-    if (Serial1.available()) {
+void xbee_run()
+{
+    if (Serial1.available())
+    {
         String receivedMessage = "";
-
-        while (Serial1.available()) {
-            char c = Serial1.read();
-            receivedMessage += c;
+        char c = ' ';
+        while (c != '|')
+        {
+            if (Serial1.available())
+            {
+                c = Serial1.read();
+                if (c != '|')
+                {
+                    receivedMessage += c;
+                }
+            }
         }
-        getValue(receivedMessage);
+
+        receivedMessage.trim();
+
+        xbee_get_value(receivedMessage);
     }
+
+    delay(100);
 }
+
+// void sendRTKData(String hexString)
+// {
+//     int len = hexString.length();
+//     for (int i = 0; i < len; i += 2)
+//     {
+//         String byteString = hexString.substring(i, i + 2);
+//         uint8_t byteVal = (uint8_t) strtol(byteString.c_str(), nullptr, 16);
+//         Serial2.write(byteVal);
+//     }
+// }

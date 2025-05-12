@@ -2,8 +2,10 @@
 
 void xbee_setup();
 
-void getValue(String receivedMessage);
-
-// void sendValue(int currentAngle, int targetAngle, int servoAnglePosition, Stream &output)
+void xbee_get_value(String receivedMessage);
 
 void xbee_run();
+
+// void sendRTKData(String hexString);
+
+String xbee_create_message(String message);

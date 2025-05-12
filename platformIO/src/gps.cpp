@@ -154,6 +154,7 @@ void GNSS::gpsInit()
 
     scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
 
+    //activeUBX();
     //myGNSS.setI2COutput(COM_TYPE_UBX); // désactive NMEA, active UBX
     //myGNSS.setAutoPVT(true); // active NAV-PVT
     myGNSS.setAutoRELPOSNED(true); // active NAV-RELPOSNED
