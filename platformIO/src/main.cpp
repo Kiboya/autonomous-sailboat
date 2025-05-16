@@ -3,6 +3,7 @@
 #include "task.h"
 #include "example.h"
 #include "pathPlanification.h"
+#include "shared_data.h"
 
 #define LED_PIN 25  // Broche LED pour Raspberry Pi Pico
 
@@ -78,7 +79,7 @@ void pathFinding(void *pvParameters) {
         double boat_lat = 48.8566, boat_lon = 2.3522;
         double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
         double horizontal_tilt = 0.0, vertical_tilt = 0.0;
-        double compass = 90.0, wind_vane = 180.0;
+        double compass = 90.0, wind_vane = 0.0;
         Serial.printf("Boat Latitude: %.4f\n", boat_lat);
         Serial.printf("Boat Longitude: %.4f\n", boat_lon);
         Serial.printf("Waypoint Latitude: %.4f\n", waypoint_lat);
