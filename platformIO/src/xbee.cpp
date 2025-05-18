@@ -15,6 +15,7 @@ float Kp = 1.0;
 float Ki = 1.0;
 String rtk = "";
 String complete_message;
+size_t receivedMessageLength;
 
 
 void xbee_setup() {
@@ -34,7 +35,7 @@ void xbee_setup() {
 
     Serial2.setRX(rtk_rx_pin);
     Serial2.setTX(rtk_tx_pin);
-    Serial2.begin(9600, SERIAL_8N1);
+    Serial2.begin(38400, SERIAL_8N1);
 
     Serial.begin(9600);
 }
@@ -206,10 +207,12 @@ void xbee_run()
                 }
             }
         }
-
+        Serial.println(receivedMessage);
         receivedMessage.trim();
-
-        xbee_get_value(receivedMessage);
+        receivedMessageLength = Serial2.write((const uint8_t *)receivedMessage.c_str(), receivedMessage.length());
+        Serial.print("Taille du Message RTCM reçu : ");
+        Serial.println(receivedMessageLength);
+        //xbee_get_value(receivedMessage);
     }
 
     delay(100);
