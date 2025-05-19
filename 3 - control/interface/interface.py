@@ -25,6 +25,9 @@ class Interface:
         self.receive_thread.start()
 
         # Lancer un thread pour envoyer les corrections RTK
+        # while True :
+        #     self.send_rtk_corrections()
+
         self.rtk_thread = threading.Thread(target=self.send_rtk_corrections, daemon=True)
         self.rtk_thread.start()
 
@@ -119,13 +122,32 @@ class Interface:
         """Lire les corrections RTK et les envoyer en XBee"""
         while True:
             _, raw_data = self.rtk.read_rtk()
+            time.sleep(0.1)
             if raw_data:
                 with self.xbee_lock:  # Sécurisation de l'accès au port série
                     try:
-                        self.xbee.send_key_value("RTK",raw_data.hex())
+                        # print(f"Envoi RTK : {raw_data.hex()}")
+                        # # self.xbee.send_key_value("RTK",raw_data.hex())
+                        # self.xbee.send_message(raw_data.hex())
+                        # print(raw_data)
+                        data = [(f"{val:x}") for i, val in enumerate(raw_data)]
+                        msg=""
+                        for val in data:
+                            msg += val
+
+                        print(f"Envoi RTK : {data}")
+                        self.xbee.send_key_value("RTK", msg)
+
+                        # sys.exit(0)
+                        # for val in data:
+                        #     self.xbee.send_key_value("RTK", val)
+                            # print(f"Envoi RTK : {val}")
+                        # self.xbee.send_message(raw_data)
                         time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
+                        # sys.exit(-1)
                     except Exception as e:
                         print(f"Erreur d'envoi RTK : {e}")
+                        sys.exit(-1)
 
 
 def load_yaml_config(yaml_file):
