@@ -30,3 +30,7 @@ sudo npm install -g markdownlint-cli
 
 2. **[Configuration de Visual Studio Code pour ESP32C3](docs/vscode-setup.md)**  
    Cette documentation (à venir) expliquera comment configurer Visual Studio Code pour le développement et le débogage avec ESP32C3.
+
+3. **[Résultats et analyses](docs/result.md)**  
+   Cette documentation présente les résultats, analyses et observations liés au projet.
+
