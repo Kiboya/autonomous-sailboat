@@ -16,7 +16,7 @@ PC sur la berge envoie correctifs RTK à Xbee
 
 → GPS renvoie les données corrigées via i2c à la pico
 
-On a pensé : peutêtre que l’altitude pourra être utilisé pour detecter des écart de mesure important qui pourrait indiquer que la série de mesure est peut-être fausse
+On a pensé : peut être que l’altitude pourra être utilisé pour detecter des écart de mesure important qui pourrait indiquer que la série de mesure est peut-être fausse
 
 ## Centrale inertielle
 
@@ -26,7 +26,7 @@ Angle en degrés : pour les inclinaison de l’appareil sur le plan horizontale 
 
 Rotation sur X : angles par rapport au nord (direction du bateau) 
 
-Boussole : valeur entre 0n et 360 (nord = 0 dans le sens d’une aiguille d’une montre)
+Boussole : valeur entre 0 et 360 (nord = 0 dans le sens d’une aiguille d’une montre)
 
 Accélération peut-être obtenue en fonction de la gravité (en G). A voir si on l’utilise pour intégrer et retourner la vitesse
 
