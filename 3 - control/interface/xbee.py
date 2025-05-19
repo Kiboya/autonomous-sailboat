@@ -14,7 +14,9 @@ class Xbee():
     def send_key_value(self, key, value):
         if key.lower() == "exit":
             self.disconnect()
-        message = key.lower() + ":" + str(value)
+        message = key.lower() + ":" + str(value) +"|"
+        # print("")
+        # print(f"{message}")
         self.serial_xbee.write(message.encode() + b"\n")
         #print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
 
@@ -22,7 +24,8 @@ class Xbee():
     def send_message(self, message):
         if message.lower() == "exit":
             self.disconnect()
-        self.serial_xbee.write(message.encode() + b"\n")
+        self.serial_xbee.write(message)
+        # self.serial_xbee.write(message.encode() + b"\n")
         #print(f"[{time.strftime('%H:%M:%S')}] Message envoyé : {message}")
 
 
