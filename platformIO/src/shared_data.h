@@ -10,6 +10,9 @@ typedef struct {
     double wind_vane;
     double horizontal_tilt;
     double vertical_tilt;
+    int targetAngle;
+    int targetTension;
+    int currentAngle;
 } SharedData;
 
 extern SharedData sharedData;

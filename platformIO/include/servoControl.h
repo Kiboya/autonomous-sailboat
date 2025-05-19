@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Servo.h>
+#include <xbeeImpl.h>
 
 // Value safran
 const int min_angle_safran = 70;
@@ -29,14 +30,7 @@ private:
     Servo safranServo;
     Servo sailServo;
 
-    // Command Parameters
-    int targetAngle = 0;
-    int targetTension = 0;
-    float Kp = 1.0;
-    float Ki = 1.0;
-
     // Control Parameters
-    int currentAngle = 0;
     int currentTension = 0;
     int servoAnglePosition = 125;
     int voileTensionPosition = 100;
@@ -44,24 +38,15 @@ private:
     int ms_sail_position;
 
     // Variables for PI control
-    float previousError = 0.0;
-    float integral = 0.0;
+    float adjustment = 0.0;
+    float cumulateError = 0.0;
 
 public:
     servoControl();
-    void servo_control();
-    void getCurrentAngleFromNorth();
-    void simulateMovingBoat(int angleDifference);
+    void servo_control(const xbeeImpl &xbee);
     int calculateShortestPath(int current, int target);
-    void getValue(String receivedMessage);
-
-    // Getters for Command Parameters
-    int getTargetAngle() const { return targetAngle; }
-    float getKp() const { return Kp; }
-    float getKi() const { return Ki; }
 
     // Getters for Control Parameters
-    int getCurrentAngle() const { return currentAngle; }
     int getCurrentTension() const { return currentTension; }
     int getServoAnglePosition() const { return servoAnglePosition; }
     int getVoileTensionPosition() const { return voileTensionPosition; }
@@ -69,8 +54,8 @@ public:
     int getSailPosition() const { return ms_sail_position; }
 
     // Getters for PI Control Variables
-    float getPreviousError() const { return previousError; }
-    float getIntegral() const { return integral; }
+    float getAdjustement() const { return adjustment; }
+    float getCumulateError() const { return cumulateError; }
 };
 
 #endif // SERVO_CONTROL_H
