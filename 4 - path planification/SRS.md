@@ -42,7 +42,7 @@ L’objectif est de développer un module logiciel permettant au voilier autonom
 Le module d’itinéraire interagit avec :
 
 - **Capteurs** : centrale inertielle, GPS et girouette.
-- **Données :** Accélération, accélération angulaire, champ magnétique sur X, Y et Z obtenue via le magnétomètre, direction du vent.
+- **Données :** Accélération, accélération angulaire, champ magnétique sur X, Y et Z obtenue via le magnétomètre, direction du vent, position.
 - **Actionneurs :** safran & voile (via un treuil)
 
 2.2 **Fonctions principales**

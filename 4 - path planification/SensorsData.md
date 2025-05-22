@@ -31,3 +31,5 @@ Boussole : valeur entre 0n et 360 (nord = 0 dans le sens d’une aiguille d’un
 Accélération peut-être obtenue en fonction de la gravité (en G). A voir si on l’utilise pour intégrer et retourner la vitesse
 
 ## Girouette
+
+Pas d'information sur ce capteur
