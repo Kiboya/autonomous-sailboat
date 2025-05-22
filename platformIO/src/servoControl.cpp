@@ -24,12 +24,12 @@ void servoControl::servo_control(const xbeeImpl &xbee)
 {
     int targetAngle = sharedData.targetAngle;
     int targetTension = sharedData.targetTension;
-    int currentAngle = sharedData.currentAngle;
+    int angleFromNorth = sharedData.angleFromNorth;
     float Kp = xbee.getKp();
     float Ki = xbee.getKi();
 
     // Calculate the angle angle between the current angle and the target angle
-    int error = calculateShortestPath(currentAngle, targetAngle);
+    int error = calculateShortestPath(angleFromNorth, targetAngle);
 
     // PI Controller: calculate the proportional and integral terms
     cumulateError += error;                           // accumulate the error over time
@@ -43,9 +43,6 @@ void servoControl::servo_control(const xbeeImpl &xbee)
     // Update sail servo position with the new adjustment
     ms_sail_position = map(voileTensionPosition, min_angle_sail, max_angle_sail, min_ms_sail, max_ms_sail);
     safranServo.writeMicroseconds(ms_sail_position);
-
-    // Send value to own XBee
-    xbee.Send(currentTension, currentAngle, targetAngle, servoAnglePosition);
 
     // // Reset values for the next loop if needed
     // servoAnglePosition = init_angle_safran;

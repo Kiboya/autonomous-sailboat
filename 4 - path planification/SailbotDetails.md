@@ -1,38 +1,35 @@
-# Détails du voilier
+# Sailboat details
 
-Mat : 120
+## Introduction
 
-Hauteur grande voile : 118
+This document provides detailed measurements of the sailboat used in the project, with all dimensions given in meters. These measurements are essential for physical modeling, performance simulation, and ensuring compliance with International One Metre (IOM) class regulations. The data covers all key structural and functional components of the sailboat, including the mast, sails, hull, keel, and rudder.
 
-Largueur grande voile : 35
+Each measurement is presented alongside the official IOM class rules, serving as a reference to assess the model’s conformity and to guide potential design optimizations.
 
-30+31+30+29
 
-Petite voile
+### Mast and Sails
+Mast height: 1.20 m
+Mainsail height (luff): 1.18 m
+Mainsail foot length (bottom edge): 0.35 m
 
-90 hauteur 
 
-34 en bas la 
+### Jib (Headsail)
+Jib height (luff): 0.90 m
+Jib foot length (bottom edge): 0.34 m
+Jib leech length (trailing edge): 0.98 m
 
-98 à droite
+### Rudder
+Height: 0.22 m
+Chord length (bottom edge): 0.06 m
+Trailing edge length: 0.17 m
 
-Safran
+## Keel
+Height: 0.32 m
+Width: 0.08 m
 
-22 hauteur
-
-6 en bas la
-
-17 à droite 
-
-Quille
-
-Hauteur 32
-
-Largeur 8
-
-Largeur coque 16
-
-Hauteur coque 13
+## Hull
+Hull width (beam): 0.16 m
+Hull height (depth): 0.13 m
 
 ![IMG_3592.jpeg](src/sailboat.jpeg)
 

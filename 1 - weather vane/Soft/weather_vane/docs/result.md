@@ -1,5 +1,11 @@
 # Influence du vent sur le déphasage d’un signal acoustique
 
+## Introduction
+
+La mesure de la direction et de la vitesse du vent est un enjeu important pour de nombreux systèmes embarqués, notamment dans le domaine de la robotique autonome. Une méthode consiste à analyser l’influence du vent sur la propagation d’un signal acoustique. En effet, la vitesse du vent modifie la vitesse apparente du son dans l’air, ce qui se traduit par une variation du temps de propagation et donc un déphasage du signal reçu.  
+Ce document présente les principes physiques, les calculs théoriques et les résultats expérimentaux obtenus lors de l’étude de ce phénomène, dans le cadre d’un projet de girouette électronique.
+
+
 ## Paramètres connus
 
 - **Distance de propagation** :  
@@ -95,19 +101,19 @@ $\Delta t = t_0 - t_{vent} \approx (437 - 426) \approx 10.37µs$
 
 Pour commencer, temps de propagation du signal entre un E/R à 15cm.
 
-![Installation expérimentale](img/install.jpg)
+![Installation expérimentale](../img/install.jpg)
 
 Ici, le temps de propagation du signal apres un burst de 8 fronts à 40KHz.
 
-![Temps de prop](img/temps_v0.png)
+![Temps de prop](../img/temps_v0.png)
 
 Nous avons un Delta temps de 478µs contre 437µs théorique. 
 Un résultat peu choquant car les 15 cm des E/R ne sont pas super rigoureux.
 
 Maintenant, mesurons l'impact du vent sur le temps de reception de notre signal (vent dans le sens contraire du sens de propagation du signal).
 
-![Pas de vent](img/scope_3.png)
-![ca souffle lol :)](img/scope_4.png)
+![Pas de vent](../img/scope_3.png)
+![ca souffle lol :)](../img/scope_4.png)
 
 Nous remarquons que notre signal a bien été retardé. Cependant, il n'a été retardé que de 4µs.
 
@@ -115,6 +121,6 @@ Nous estimons le vent avec le ventilateur à fond autour de 60 km/h (voir plus!)
 
 Plus dérangeant, ce résultat est similaire lorsque nous avons un vent de côté.
 
-![Vent de côté](img/scope_5.png)
+![Vent de côté](../img/scope_5.png)
 
 Ces résultats ne nous permettent pas d'estimer la direction du vent.

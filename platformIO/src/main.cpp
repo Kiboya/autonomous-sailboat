@@ -2,12 +2,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "pathPlanification.h"
-#include <example.h>
 #include "cmps12.h"
 #include "qmc5883l.h"
-#include <servoControl.h>
-#include <xbeeImpl.h>
-
+#include "shared_data.h"
+#include "servoControl.h"
+#include "xbeeImpl.h"
 
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
@@ -26,8 +25,8 @@ void i2cScanTask(void *pvParameters);
 
 // Création des instances TwoWire pour chaque capteur
 // (Attention : selon votre carte, il faudra adapter la création des instances)
-// TwoWire I2C1Instance(i2c1, 2, 3); // Pour le CMPS12 : instance i2c1, SDA = GP2, SCL = GP3
-TwoWire I2C0Instance(i2c0, 4, 5); // Pour le QMC5883L : instance i2c0, SDA = GP4, SCL = GP5
+// TwoWire I2C1Instance(i2c1, 2, 3); // Pour le QMC5883L : instance i2c1, SDA = GP2, SCL = GP3
+TwoWire I2C0Instance(i2c0, 4, 5); // Pour le CMPS12 : instance i2c0, SDA = GP4, SCL = GP5
 
 // Instanciation des capteurs avec leurs bus I2C respectifs
 CMPS12 cmps12(I2C0Instance, 0x60);
@@ -38,12 +37,12 @@ void setup()
   Serial.begin(115200);
 
   xTaskCreate(
-      TaskBlink,  // Fonction de la tâche
-      "LED Task", // Nom de la tâche
-      1024,       // Taille de la pile
-      NULL,       // Paramètre
-      1,          // Priorité
-      NULL        // Handle de tâche (inutile ici)
+    TaskBlink,  // Fonction de la tâche
+    "LED Task", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
   );
 
   xTaskCreate(
@@ -73,8 +72,17 @@ void setup()
     NULL              // Handle de tâche (inutile ici)
   );
 
-    // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
-    // vTaskStartScheduler();
+  xTaskCreate(
+    sensorTask,  // Fonction de la tâche
+    "LED Task", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
+  );
+
+  // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
+  // vTaskStartScheduler();
 }
 
 void loop()
@@ -99,8 +107,9 @@ void TaskBlink(void *pvParameters)
 void xbeeTask(void *pvParameters) {
   while (1)
   {
-    xbee.Read();
+    xbee.read();
     xbee.getValue();
+    xbee.send(sharedData);
   }
 }
 
@@ -118,45 +127,49 @@ void sensorTask(void *pvParameters) {
     cmps12.begin(); 
     // qmc5883l.begin();
     
-    // Calibration du CMPS12
-    Serial.println("Starting CMPS12 Calibration...");
-    cmps12.startCalibration();
-    Serial.println("Veuillez faire pivoter le capteur pendant 30 secondes...");
-    vTaskDelay(pdMS_TO_TICKS(30000));
-    cmps12.endCalibration();
-    Serial.println("Calibration terminée. Début de la lecture des données.");
+    // // Calibration du CMPS12
+    // Serial.println("Starting CMPS12 Calibration...");
+    // cmps12.startCalibration();
+    // Serial.println("Veuillez faire pivoter le capteur pendant 30 secondes...");
+    // vTaskDelay(pdMS_TO_TICKS(30000));
+    // cmps12.endCalibration();
+    // Serial.println("Calibration terminée. Début de la lecture des données.");
     
     while (1) {
-         // Lecture des données du CMPS12
-         uint16_t compassBearing16 = cmps12.readCompassBearing();
-         int8_t pitch = cmps12.readPitch();
-         int8_t roll = cmps12.readRoll();
-         uint8_t calibrationState = cmps12.readCalibrationState();
-         
-         Serial.println("Inclinaison de l'appareil (avant/arrière) :");
-         Serial.print("Pitch angle: ");
-         Serial.println(pitch);
-         Serial.println("Rotation (gauche/droite) :");
-         Serial.print("Roll angle: ");
-         Serial.println(roll);
-         Serial.print("Calibration State: ");
-         Serial.println(calibrationState);
-         Serial.println("-------------------------------------------------------");
-         
+        // Lecture des données du CMPS12
+        uint16_t compassBearing16 = cmps12.readCompassBearing();
+        int8_t pitch = cmps12.readPitch();
+        int8_t roll = cmps12.readRoll();
+        uint8_t calibrationState = cmps12.readCalibrationState();
+
+        sharedData.horizontal_tilt = roll;
+        sharedData.vertical_tilt = pitch;
+        sharedData.angleFromNorth = compassBearing16 / 10;
+
+        Serial.println("Inclinaison de l'appareil (avant/arrière) :");
+        Serial.print("Pitch angle: ");
+        Serial.println(pitch);
+        Serial.println("Rotation (gauche/droite) :");
+        Serial.print("Roll angle: ");
+        Serial.println(roll);
+        Serial.print("Calibration State: ");
+        Serial.println(calibrationState);
+        Serial.println("-------------------------------------------------------");
+        
         //  // Lecture et calcul de l'orientation via QMC5883L
         //  float headingQMC = qmc5883l.getHeading();
-         
-         Serial.print("Direction (CMPS12) : ");
-         Serial.print(compassBearing16 / 10);
-         Serial.print(".");
-         Serial.print(compassBearing16 % 10);
-         Serial.println(" degrees");
+        
+        Serial.print("Direction (CMPS12) : ");
+        Serial.print(compassBearing16 / 10);
+        Serial.print(".");
+        Serial.print(compassBearing16 % 10);
+        Serial.println(" degrees");
         //  Serial.print("Direction (QMC5883L) : ");
         //  Serial.print(headingQMC);
         //  Serial.println(" degres");
         //  Serial.println("-------------------------------------------------------");
-         
-         vTaskDelay(pdMS_TO_TICKS(500));
+        
+        vTaskDelay(pdMS_TO_TICKS(500));
 
     }
 }
@@ -170,7 +183,7 @@ void pathFinding(void *pvParameters) {
         double boat_lat = 48.8566, boat_lon = 2.3522;
         double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
         double horizontal_tilt = 0.0, vertical_tilt = 0.0;
-        double compass = 90.0, wind_vane = 180.0;
+        double compass = 90.0, wind_vane = 0.0;
         Serial.printf("Boat Latitude: %.4f\n", boat_lat);
         Serial.printf("Boat Longitude: %.4f\n", boat_lon);
         Serial.printf("Waypoint Latitude: %.4f\n", waypoint_lat);
