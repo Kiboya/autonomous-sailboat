@@ -12,6 +12,7 @@
 
 servoControl boat;
 xbeeImpl xbee;
+SharedData sharedData;
 
 // Déclaration des tâches existantes
 void TaskBlink(void *pvParameters);
