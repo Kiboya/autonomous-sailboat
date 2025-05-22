@@ -26,9 +26,12 @@ private:
 
 public:
     xbeeImpl();
-    void Read();
+    // Read from Serial1(xbee) and write to Serial2 (for RTK)
+    void read();
+    // Parse the last received message and extract key-value pairs
     void getValue();
-    void Send(int currentTension, int currentAngle, int targetAngle, int servoAnglePosition) const;
+    // Send shared data to Serial1(xbee) if values have changed
+    void send(const SharedData& data) const;
 
     // Getters for PID Parameters
     float getKp() const { return Kp; }

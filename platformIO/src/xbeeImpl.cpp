@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "xbeeImpl.h"
+#include "shared_data.h"
 
 xbeeImpl::xbeeImpl()
 {
@@ -22,7 +23,7 @@ xbeeImpl::xbeeImpl()
     Serial2.begin(38400, SERIAL_8N1);
 }
 
-void xbeeImpl::Read()
+void xbeeImpl::read()
 {
     if (Serial1.available())
     {
@@ -71,14 +72,15 @@ void xbeeImpl::getValue()
             Serial.print("kp value: ");
             Serial.println(Kp);
         }
-        else if (key == "rtk") {
+        else if (key == "rtk")
+        {
             rtk = value;
             Serial.println(rtk);
             Serial2.print(rtk);
             Serial.println("rtk value sended to GPS");
-
         }
-        else {
+        else
+        {
             Serial.println("Invalid key. Expected 'kp', 'ki' or 'rtk.");
         }
     }
@@ -88,38 +90,70 @@ void xbeeImpl::getValue()
     }
 }
 
-void xbeeImpl::Send(int currentTension, int currentAngle, int targetAngle, int servoAnglePosition) const
+void xbeeImpl::send(const SharedData& data) const
 {
-    static int previous_curr = -1;
-    static int previous_target = -1;
-    static int previous_serv = -1;
-    static int previous_tension = -1;
+    static double prev_lat = -9999.0;
+    static double prev_lon = -9999.0;
+    static double prev_compass = -9999.0;
+    static double prev_wind = -9999.0;
+    static double prev_h_tilt = -9999.0;
+    static double prev_v_tilt = -9999.0;
+    static int prev_target_angle = -1;
+    static int prev_target_tension = -1;
+    static int prev_angle_from_north = -1;
 
-    if (currentAngle != previous_curr)
-    {
-        Serial1.print("current angle:");
-        Serial1.println(currentAngle);
-        previous_curr = currentAngle;
+    if (data.latitude != prev_lat) {
+        Serial1.print("latitude: ");
+        Serial1.println(data.latitude, 6);  // 6 decimal precision
+        prev_lat = data.latitude;
     }
 
-    if (currentTension != previous_tension)
-    {
-        Serial1.print("current tension:");
-        Serial1.println(currentTension);
-        previous_tension = currentTension;
+    if (data.longitude != prev_lon) {
+        Serial1.print("longitude: ");
+        Serial1.println(data.longitude, 6);
+        prev_lon = data.longitude;
     }
 
-    if (targetAngle != previous_target)
-    {
-        Serial1.print("target angle:");
-        Serial1.println(targetAngle);
-        previous_target = targetAngle;
+    if (data.compass != prev_compass) {
+        Serial1.print("compass: ");
+        Serial1.println(data.compass, 2);
+        prev_compass = data.compass;
     }
 
-    if (servoAnglePosition != previous_serv)
-    {
-        Serial1.print("servo angle position:");
-        Serial1.println(servoAnglePosition);
-        previous_serv = servoAnglePosition;
+    if (data.wind_vane != prev_wind) {
+        Serial1.print("wind vane: ");
+        Serial1.println(data.wind_vane, 2);
+        prev_wind = data.wind_vane;
+    }
+
+    if (data.horizontal_tilt != prev_h_tilt) {
+        Serial1.print("horizontal tilt: ");
+        Serial1.println(data.horizontal_tilt, 2);
+        prev_h_tilt = data.horizontal_tilt;
+    }
+
+    if (data.vertical_tilt != prev_v_tilt) {
+        Serial1.print("vertical tilt: ");
+        Serial1.println(data.vertical_tilt, 2);
+        prev_v_tilt = data.vertical_tilt;
+    }
+
+    if (data.targetAngle != prev_target_angle) {
+        Serial1.print("target angle: ");
+        Serial1.println(data.targetAngle);
+        prev_target_angle = data.targetAngle;
+    }
+
+    if (data.targetTension != prev_target_tension) {
+        Serial1.print("target tension: ");
+        Serial1.println(data.targetTension);
+        prev_target_tension = data.targetTension;
+    }
+
+    if (data.angleFromNorth != prev_angle_from_north) {
+        Serial1.print("angle from north: ");
+        Serial1.println(data.angleFromNorth);
+        prev_angle_from_north = data.angleFromNorth;
     }
 }
+

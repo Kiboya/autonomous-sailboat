@@ -12,8 +12,7 @@ typedef struct {
     double vertical_tilt;
     int targetAngle;
     int targetTension;
-    int currentAngle;
+    int angleFromNorth;
 } SharedData;
 
 extern SharedData sharedData;
-extern SemaphoreHandle_t sharedDataMutex;

@@ -2,12 +2,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "pathPlanification.h"
-#include <example.h>
 #include "cmps12.h"
 #include "qmc5883l.h"
 #include "shared_data.h"
-#include <servoControl.h>
-#include <xbeeImpl.h>
+#include "servoControl.h"
+#include "xbeeImpl.h"
 
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
@@ -108,8 +107,9 @@ void TaskBlink(void *pvParameters)
 void xbeeTask(void *pvParameters) {
   while (1)
   {
-    xbee.Read();
+    xbee.read();
     xbee.getValue();
+    xbee.send(sharedData);
   }
 }
 
@@ -144,7 +144,7 @@ void sensorTask(void *pvParameters) {
 
         sharedData.horizontal_tilt = roll;
         sharedData.vertical_tilt = pitch;
-        sharedData.currentAngle = compassBearing16 / 10;
+        sharedData.angleFromNorth = compassBearing16 / 10;
 
         Serial.println("Inclinaison de l'appareil (avant/arrière) :");
         Serial.print("Pitch angle: ");
