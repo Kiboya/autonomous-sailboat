@@ -22,7 +22,7 @@ On a supposé : peut être que l’altitude pourra être utilisé pour detecter 
 
 Connecté en I2C avec la carte Raspberry PI, sur le même bus avec un adresse différente.
 
-Renvoie des angles en degrés : pour les inclinaison de l’appareil sur le plan horizontale (avant(-90) arrière(+90) et vertical (sur les cotés à gauche -90 à droite +90). 
+Renvoie des angles en degrés : pour les inclinaison de l’appareil sur le plan horizontal (avant(-90) arrière(+90) et vertical (sur les cotés à gauche -90 à droite +90). 
 
 Renvoie la rotation sur X : angles par rapport au nord (direction du bateau).
 
