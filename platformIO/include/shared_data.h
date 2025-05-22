@@ -1,6 +1,5 @@
-#pragma once
-#include "FreeRTOS.h"
-#include "semphr.h"
+#ifndef SHAREDDATA_H
+#define SHAREDDATA_H
 
 // Structure partagée par toutes les tâches
 typedef struct {
@@ -16,3 +15,5 @@ typedef struct {
 } SharedData;
 
 extern SharedData sharedData;
+
+#endif
