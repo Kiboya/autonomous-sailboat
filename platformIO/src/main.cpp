@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "pathPlanification.h"
 #include <example.h>
 #include "cmps12.h"
 #include "qmc5883l.h"
@@ -10,10 +11,14 @@
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
 servoControl boat;
+xbeeImpl xbee;
 
 // Déclaration des tâches existantes
 void TaskBlink(void *pvParameters);
 void exampleTask(void *pvParameters);
+void xbeeTask(void *pvParameters);
+void controlTask(void *pvParameters);
+void pathFinding(void *pvParameters);
 // Nouvelle tâche pour les capteurs
 void sensorTask(void *pvParameters);
 void i2cScanTask(void *pvParameters);
@@ -31,16 +36,6 @@ void setup()
 {
   Serial.begin(115200);
 
-  // Création des tâches FreeRTOS
-  // xTaskCreate(
-  //     TaskBlink,        // Fonction de la tâche
-  //     "LED Task",       // Nom de la tâche
-  //     1024,             // Taille de la pile
-  //     NULL,             // Paramètre
-  //     1,                // Priorité
-  //     NULL              // Handle de tâche
-  // );
-
   xTaskCreate(
     TaskBlink,  // Fonction de la tâche
     "LED Task", // Nom de la tâche
@@ -48,6 +43,33 @@ void setup()
     NULL,       // Paramètre
     1,          // Priorité
     NULL        // Handle de tâche (inutile ici)
+  );
+
+  xTaskCreate(
+    xbeeTask,  // Fonction de la tâche
+    "Xbee data transceiver", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
+  );
+
+  xTaskCreate(
+    controlTask,  // Fonction de la tâche
+    "control task", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
+  );
+
+  xTaskCreate(
+    pathFinding,        // Fonction de la tâche
+    "pathPlanification",       // Nom de la tâche
+    1024,             // Taille de la pile
+    NULL,             // Paramètre
+    1,                // Priorité
+    NULL              // Handle de tâche (inutile ici)
   );
 
   xTaskCreate(
@@ -80,6 +102,21 @@ void TaskBlink(void *pvParameters)
         digitalWrite(2, LOW);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
+}
+
+void xbeeTask(void *pvParameters) {
+  while (1)
+  {
+    xbee.Read();
+    xbee.getValue();
+  }
+}
+
+void controlTask(void *pvParameters) {
+  while (1)
+  {
+    boat.servo_control(xbee);
+  }
 }
 
 // Nouvelle tâche pour la gestion des capteurs
@@ -129,5 +166,32 @@ void sensorTask(void *pvParameters) {
          
          vTaskDelay(pdMS_TO_TICKS(500));
 
+    }
+}
+
+
+void pathFinding(void *pvParameters) {
+    pinMode(3, OUTPUT);
+    int i= 0;
+    while (1) {
+        i++;
+        double boat_lat = 48.8566, boat_lon = 2.3522;
+        double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
+        double horizontal_tilt = 0.0, vertical_tilt = 0.0;
+        double compass = 90.0, wind_vane = 180.0;
+        Serial.printf("Boat Latitude: %.4f\n", boat_lat);
+        Serial.printf("Boat Longitude: %.4f\n", boat_lon);
+        Serial.printf("Waypoint Latitude: %.4f\n", waypoint_lat);
+        Serial.printf("Waypoint Longitude: %.4f\n", waypoint_lon);
+        Serial.printf("Horizontal Tilt: %.2f\n", horizontal_tilt);
+        Serial.printf("Vertical Tilt: %.2f\n", vertical_tilt);
+        Serial.printf("Compass: %.2f\n", compass);
+        Serial.printf("Wind Vane: %.2f\n", wind_vane);
+        double direction = calculate_direction(boat_lat, boat_lon, waypoint_lat, waypoint_lon, horizontal_tilt, vertical_tilt, compass, wind_vane);
+        Serial.printf("Iteration: %d\n", i);
+        Serial.printf("Optimal direction: %.2f°\n", direction);
+        digitalWrite(3, LOW);
+        vTaskDelay(pdMS_TO_TICKS(10)); // Attendre 1s
+        digitalWrite(3, HIGH);
     }
 }

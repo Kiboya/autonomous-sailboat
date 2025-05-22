@@ -6,7 +6,6 @@ Config:
       outputs:
         KP: 0.1
         KI: 0.1
-        KD: 0.1
 
     - Name: control
       outputs:
