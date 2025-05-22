@@ -7,7 +7,6 @@
 #include <servoControl.h>
 #include <xbeeImpl.h>
 
-
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
 servoControl boat;
@@ -21,8 +20,8 @@ void i2cScanTask(void *pvParameters);
 
 // Création des instances TwoWire pour chaque capteur
 // (Attention : selon votre carte, il faudra adapter la création des instances)
-// TwoWire I2C1Instance(i2c1, 2, 3); // Pour le CMPS12 : instance i2c1, SDA = GP2, SCL = GP3
-TwoWire I2C0Instance(i2c0, 4, 5); // Pour le QMC5883L : instance i2c0, SDA = GP4, SCL = GP5
+// TwoWire I2C1Instance(i2c1, 2, 3); // Pour le QMC5883L : instance i2c1, SDA = GP2, SCL = GP3
+TwoWire I2C0Instance(i2c0, 4, 5); // Pour le CMPS12 : instance i2c0, SDA = GP4, SCL = GP5
 
 // Instanciation des capteurs avec leurs bus I2C respectifs
 CMPS12 cmps12(I2C0Instance, 0x60);
@@ -30,29 +29,38 @@ CMPS12 cmps12(I2C0Instance, 0x60);
 
 void setup()
 {
-    Serial.begin(115200);
+  Serial.begin(115200);
 
-    // Création des tâches FreeRTOS
-    // xTaskCreate(
-    //     TaskBlink,        // Fonction de la tâche
-    //     "LED Task",       // Nom de la tâche
-    //     1024,             // Taille de la pile
-    //     NULL,             // Paramètre
-    //     1,                // Priorité
-    //     NULL              // Handle de tâche
-    // );
+  // Création des tâches FreeRTOS
+  // xTaskCreate(
+  //     TaskBlink,        // Fonction de la tâche
+  //     "LED Task",       // Nom de la tâche
+  //     1024,             // Taille de la pile
+  //     NULL,             // Paramètre
+  //     1,                // Priorité
+  //     NULL              // Handle de tâche
+  // );
 
-    xTaskCreate(
-        TaskBlink,  // Fonction de la tâche
-        "LED Task", // Nom de la tâche
-        1024,       // Taille de la pile
-        NULL,       // Paramètre
-        1,          // Priorité
-        NULL        // Handle de tâche (inutile ici)
-    );
+  xTaskCreate(
+    TaskBlink,  // Fonction de la tâche
+    "LED Task", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
+  );
 
-    // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
-    // vTaskStartScheduler();
+  xTaskCreate(
+    sensorTask,  // Fonction de la tâche
+    "LED Task", // Nom de la tâche
+    1024,       // Taille de la pile
+    NULL,       // Paramètre
+    1,          // Priorité
+    NULL        // Handle de tâche (inutile ici)
+  );
+
+  // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
+  // vTaskStartScheduler();
 }
 
 void loop()
