@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <unity.h>
-#include "xbeeImpl.h"  
-#include "shared_data.h"  
+#include "xbeeImpl.h"
+#include "shared_data.h"
 
 // Mock Serial1
 class MockSerial {

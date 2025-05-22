@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <unity.h>
-#include "servoControl.h"  
+#include "servoControl.h"
 
 servoControl controller;
 

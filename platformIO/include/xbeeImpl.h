@@ -2,7 +2,7 @@
 #define XBEE_IMPL_H
 
 #include <Arduino.h>
-#include "shared_data.h"  
+#include "shared_data.h"
 
 const int XBee_reset_pin = 21;
 const int XBee_rssi_pin = 27;
@@ -22,7 +22,7 @@ private:
     // RTK Parameter
     String rtk = "";
 
-    // Message 
+    // Message
     String receivedMessage;
 
 public:

@@ -45,7 +45,6 @@ void setup()
         ; // Attendre que la connexion série soit établie
 
   m_GNSS.gpsInit();
-  xbee_setup();
 
   xTaskCreate(
     TaskBlink,  // Fonction de la tâche
@@ -141,15 +140,6 @@ void TaskBlink(void *pvParameters)
     }
 }
 
-void XbeeTask(void *pvParameters)
-{
-    while (1)
-    {
-        xbee_run();
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
 void xbeeTask(void *pvParameters) {
   while (1)
   {
@@ -170,9 +160,9 @@ void controlTask(void *pvParameters) {
 void sensorTask(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(10000));
     // Initialisation des capteurs
-    cmps12.begin(); 
+    cmps12.begin();
     // qmc5883l.begin();
-    
+
     // // Calibration du CMPS12
     // Serial.println("Starting CMPS12 Calibration...");
     // cmps12.startCalibration();
@@ -180,7 +170,7 @@ void sensorTask(void *pvParameters) {
     // vTaskDelay(pdMS_TO_TICKS(30000));
     // cmps12.endCalibration();
     // Serial.println("Calibration terminée. Début de la lecture des données.");
-    
+
     while (1) {
         // Lecture des données du CMPS12
         uint16_t compassBearing16 = cmps12.readCompassBearing();
@@ -201,10 +191,10 @@ void sensorTask(void *pvParameters) {
         Serial.print("Calibration State: ");
         Serial.println(calibrationState);
         Serial.println("-------------------------------------------------------");
-        
+
         //  // Lecture et calcul de l'orientation via QMC5883L
         //  float headingQMC = qmc5883l.getHeading();
-        
+
         Serial.print("Direction (CMPS12) : ");
         Serial.print(compassBearing16 / 10);
         Serial.print(".");
@@ -214,7 +204,7 @@ void sensorTask(void *pvParameters) {
         //  Serial.print(headingQMC);
         //  Serial.println(" degres");
         //  Serial.println("-------------------------------------------------------");
-        
+
         vTaskDelay(pdMS_TO_TICKS(500));
 
     }

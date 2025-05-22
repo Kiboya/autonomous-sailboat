@@ -19,7 +19,7 @@ const int max_angle_sail = 100;
 const int init_angle_sail = 100;
 const int min_ms_sail = 1320;
 const int max_ms_sail = 1800;
-const int init_sail = 1800; 
+const int init_sail = 1800;
 
 const int safranPin = 3;
 const int sailPin = 28;
