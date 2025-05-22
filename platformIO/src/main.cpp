@@ -5,6 +5,7 @@
 #include <example.h>
 #include "cmps12.h"
 #include "qmc5883l.h"
+#include "shared_data.h"
 #include <servoControl.h>
 #include <xbeeImpl.h>
 
@@ -126,45 +127,49 @@ void sensorTask(void *pvParameters) {
     cmps12.begin(); 
     // qmc5883l.begin();
     
-    // Calibration du CMPS12
-    Serial.println("Starting CMPS12 Calibration...");
-    cmps12.startCalibration();
-    Serial.println("Veuillez faire pivoter le capteur pendant 30 secondes...");
-    vTaskDelay(pdMS_TO_TICKS(30000));
-    cmps12.endCalibration();
-    Serial.println("Calibration terminée. Début de la lecture des données.");
+    // // Calibration du CMPS12
+    // Serial.println("Starting CMPS12 Calibration...");
+    // cmps12.startCalibration();
+    // Serial.println("Veuillez faire pivoter le capteur pendant 30 secondes...");
+    // vTaskDelay(pdMS_TO_TICKS(30000));
+    // cmps12.endCalibration();
+    // Serial.println("Calibration terminée. Début de la lecture des données.");
     
     while (1) {
-         // Lecture des données du CMPS12
-         uint16_t compassBearing16 = cmps12.readCompassBearing();
-         int8_t pitch = cmps12.readPitch();
-         int8_t roll = cmps12.readRoll();
-         uint8_t calibrationState = cmps12.readCalibrationState();
-         
-         Serial.println("Inclinaison de l'appareil (avant/arrière) :");
-         Serial.print("Pitch angle: ");
-         Serial.println(pitch);
-         Serial.println("Rotation (gauche/droite) :");
-         Serial.print("Roll angle: ");
-         Serial.println(roll);
-         Serial.print("Calibration State: ");
-         Serial.println(calibrationState);
-         Serial.println("-------------------------------------------------------");
-         
+        // Lecture des données du CMPS12
+        uint16_t compassBearing16 = cmps12.readCompassBearing();
+        int8_t pitch = cmps12.readPitch();
+        int8_t roll = cmps12.readRoll();
+        uint8_t calibrationState = cmps12.readCalibrationState();
+
+        sharedData.horizontal_tilt = roll;
+        sharedData.vertical_tilt = pitch;
+        sharedData.currentAngle = compassBearing16 / 10;
+
+        Serial.println("Inclinaison de l'appareil (avant/arrière) :");
+        Serial.print("Pitch angle: ");
+        Serial.println(pitch);
+        Serial.println("Rotation (gauche/droite) :");
+        Serial.print("Roll angle: ");
+        Serial.println(roll);
+        Serial.print("Calibration State: ");
+        Serial.println(calibrationState);
+        Serial.println("-------------------------------------------------------");
+        
         //  // Lecture et calcul de l'orientation via QMC5883L
         //  float headingQMC = qmc5883l.getHeading();
-         
-         Serial.print("Direction (CMPS12) : ");
-         Serial.print(compassBearing16 / 10);
-         Serial.print(".");
-         Serial.print(compassBearing16 % 10);
-         Serial.println(" degrees");
+        
+        Serial.print("Direction (CMPS12) : ");
+        Serial.print(compassBearing16 / 10);
+        Serial.print(".");
+        Serial.print(compassBearing16 % 10);
+        Serial.println(" degrees");
         //  Serial.print("Direction (QMC5883L) : ");
         //  Serial.print(headingQMC);
         //  Serial.println(" degres");
         //  Serial.println("-------------------------------------------------------");
-         
-         vTaskDelay(pdMS_TO_TICKS(500));
+        
+        vTaskDelay(pdMS_TO_TICKS(500));
 
     }
 }
