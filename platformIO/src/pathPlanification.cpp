@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define PI 3.14159265358979323846
+//#define PI 3.14159265358979323846
 #define NoGoZone 45.00
 #define threshold 10.00
 
