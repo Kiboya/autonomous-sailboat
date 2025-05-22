@@ -112,6 +112,41 @@ void GNSS::lireFluxGPS()
     delay(1000);
 }
 
+void GNSS::configurerUART_RX2()
+{
+    // UBX-CFG-PRT for UART2: Set in protocol in = RTCM3, out = 0
+    uint8_t cfg_prt_uart2[] = {
+        0xB5, 0x62,             // Sync chars
+        0x06, 0x00,             // Class = CFG, ID = PRT
+        0x14, 0x00,             // Length = 20 bytes
+        0x01,                   // PortID = 1 (UART2)
+        0x00,                   // Reserved
+        0x00, 0x00,             // txReady (not used)
+        0xD0, 0x08, 0x00, 0x00, // mode (8N1, 38400 bauds default)
+        0x01, 0xC2, 0x00, 0x00, // baudRate = 115200 (0x01C200) ou 19200 (0x4B00) ou 38400 (0x9600), adapter si besoin
+        0x00, 0x02,             // inProtoMask = RTCM3 (bit 1)
+        0x00, 0x00,             // outProtoMask = 0 (pas de sortie)
+        0x00, 0x00,             // flags
+        0x00, 0x00              // reserved
+    };
+
+    // Calcul du checksum
+    uint8_t ckA = 0, ckB = 0;
+    for (size_t i = 2; i < sizeof(cfg_prt_uart2); i++) {
+        ckA += cfg_prt_uart2[i];
+        ckB += ckA;
+    }
+
+    I2C1Instance.beginTransmission(ZED_F9P_I2C_ADDRESS);
+    for (size_t i = 0; i < sizeof(cfg_prt_uart2); i++)
+        I2C1Instance.write(cfg_prt_uart2[i]);
+    I2C1Instance.write(ckA);
+    I2C1Instance.write(ckB);
+    I2C1Instance.endTransmission();
+
+    Serial.println("Configuration de RX2 pour réception RTCM terminée.");
+}
+
 void GNSS::gpsInit()
 {
     delay(2000);
@@ -128,6 +163,8 @@ void GNSS::gpsInit()
     delay(1000);
 
 
-    scanI2C(); // XXX - Potentiellement à garder pour debug, si rien ne marche, peut être utile ...
+    scanI2C(); // A garder pour debug, si rien ne marche, peut être utile ...
     activeUBX_RTK();
+
+    configurerUART_RX2();
 }

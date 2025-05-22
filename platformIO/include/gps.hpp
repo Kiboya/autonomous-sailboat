@@ -15,6 +15,7 @@ class GNSS
 
         void scanI2C();
         void activeUBX_RTK();
+        void configurerUART_RX2();
         void configurerTrameNAV_PVT_I2C();
         void lireFluxGPS();
         void gpsInit();
