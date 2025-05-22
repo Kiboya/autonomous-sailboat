@@ -20,7 +20,6 @@ SharedData sharedData;
 // Déclaration des tâches existantes
 void TaskBlink(void *pvParameters);
 void exampleTask(void *pvParameters);
-void xbeeTask(void *pvParameters);
 void controlTask(void *pvParameters);
 void pathFinding(void *pvParameters);
 void GpsVersPicoTask(void *pvParameters);
@@ -49,15 +48,6 @@ void setup()
   xTaskCreate(
     TaskBlink,  // Fonction de la tâche
     "LED Task", // Nom de la tâche
-    1024,       // Taille de la pile
-    NULL,       // Paramètre
-    1,          // Priorité
-    NULL        // Handle de tâche (inutile ici)
-  );
-
-  xTaskCreate(
-    xbeeTask,  // Fonction de la tâche
-    "Xbee data transceiver", // Nom de la tâche
     1024,       // Taille de la pile
     NULL,       // Paramètre
     1,          // Priorité
@@ -140,7 +130,7 @@ void TaskBlink(void *pvParameters)
     }
 }
 
-void xbeeTask(void *pvParameters) {
+void XbeeTask(void *pvParameters) {
   while (1)
   {
     xbee.read();
