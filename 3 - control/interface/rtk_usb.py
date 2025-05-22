@@ -23,7 +23,6 @@ class RTK:
         self.rtcm_reader = None
 
     def connect_ntrip(self):
-        """Connexion au serveur NTRIP et initialisation du RTCMReader."""
         request = (
             f"GET /{self.mountpoint} HTTP/1.0\r\n"
             f"User-Agent: NTRIP PythonClient\r\n"
@@ -40,7 +39,6 @@ class RTK:
             self.sock.connect((self.ntrip_host, self.ntrip_port))
             self.sock.sendall(request.encode())
 
-            # Lecture complète de l'en-tête HTTP
             response = b""
             while b"\r\n\r\n" not in response:
                 chunk = self.sock.recv(1024)
@@ -56,7 +54,6 @@ class RTK:
                 self.sock.close()
                 sys.exit(1)
 
-            # Flux binaire
             print(f"[{time.strftime('%H:%M:%S')}] Connexion acceptée. Démarrage du lecteur RTCM...")
             sock_file = self.sock.makefile('rb')
             buffered = io.BufferedReader(sock_file)
@@ -69,7 +66,6 @@ class RTK:
             sys.exit(1)
 
     def read_rtk(self):
-        """Lire une trame RTCM brute."""
         try:
             msg = next(self.rtcm_reader)
             if msg:
@@ -82,7 +78,6 @@ class RTK:
             return None
 
     def close_connections(self):
-        """Ferme proprement la connexion socket."""
         if self.sock:
             self.sock.close()
             print(f"[{time.strftime('%H:%M:%S')}] Connexion NTRIP fermée.")
@@ -90,12 +85,13 @@ class RTK:
 
 def main():
     parser = argparse.ArgumentParser(description="RTCM to USB Serial Forwarder")
-    parser.add_argument('--port', required=True, help='Port série USB (ex: /dev/ttyUSB0 ou COM3)')
-    parser.add_argument('--baudrate', default=9600, type=int, help='Vitesse du port série (default: 9600)')
+    parser.add_argument('--port', required=True, help='Port série USB (ex: /dev/ttyUSB0)')
+    parser.add_argument('--baudrate', default=115200, type=int, help='Vitesse du port série (default: 9600)')
     args = parser.parse_args()
 
     try:
         serial_conn = serial.Serial(args.port, args.baudrate, timeout=1)
+        time.sleep(2)
         print(f"[{time.strftime('%H:%M:%S')}] Port série {args.port} ouvert à {args.baudrate} bauds.")
     except Exception as e:
         print(f"Erreur ouverture port série : {e}")
@@ -108,12 +104,13 @@ def main():
         while True:
             raw_data = rtk.read_rtk()
             if raw_data:
-                print(raw_data)
-                # serial_conn.write(raw_data)
-                serial_conn.write(25)
-                serial_conn.flush()
-                # print(f"[{time.strftime('%H:%M:%S')}] Trame envoyée sur {args.port} ({len(raw_data)} octets)")
-            time.sleep(0.1)
+                # msg = raw_data.hex().encode()
+                msg = raw_data
+                serial_conn.write(msg)
+                # serial_conn.flush()
+                print(f"[{time.strftime('%H:%M:%S')}] {len(raw_data)} octets RTCM envoyés sur {args.port}")
+                print(msg)
+            time.sleep(0.5)
     except KeyboardInterrupt:
         print("\nArrêt manuel par l'utilisateur.")
     finally:
@@ -126,7 +123,6 @@ if __name__ == "__main__":
 
 
 
-
 # import serial
 # import time
 
@@ -136,9 +132,10 @@ if __name__ == "__main__":
 
 # # Envoie la chaîne "20\n"
 # while True:    
+    # data = b"20\n"
 
-#     ser.write(b"20\n")
-#     ser.flush()
+    # ser.write(data)
+    # ser.flush()
 
-#     print("Envoi de '20' sur /dev/ttyUSB0 terminé.")
-#     time.sleep(2)  # Donne un peu de temps pour que le port s'initialise
+    # print("Envoi de " + str(data) + " sur /dev/ttyUSB0 terminé.")
+    # time.sleep(2)  # Donne un peu de temps pour que le port s'initialise
