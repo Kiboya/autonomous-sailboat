@@ -1,61 +1,257 @@
+# Path Planning System Documentation
 
-# `calculate_direction` Function Documentation
+The path planning system has been updated to use a class-based approach with improved layline tactics for upwind sailing. This document explains the functionality and usage of the new implementation.
 
-## **Description**
+## `LaylinePathPlanner` Class Overview
 
-The `calculate_direction` function calculates the optimal sailing direction for a boat, considering the boat's current location, waypoint, wind direction, and sailing constraints. It computes the azimuth (bearing) towards the waypoint and checks if the azimuth falls within a **no-go zone** due to wind direction. If it does, the function adjusts the course by finding an escape route 10 degrees outside the no-go zone. If the azimuth is already outside the no-go zone, it returns the azimuth as the optimal sailing direction.
+The `LaylinePathPlanner` class provides sophisticated path planning for autonomous sailboats, with special focus on upwind sailing tactics using laylines. The system decides between direct sailing and tacking based on the relationship between the wind direction and the target waypoint.
 
-## **Parameters**
+### Key Features
 
-- **`boat_lat` (double)**: Latitude of the boat's current position (in degrees).
-- **`boat_lon` (double)**: Longitude of the boat's current position (in degrees).
-- **`waypoint_lat` (double)**: Latitude of the destination waypoint (in degrees).
-- **`waypoint_lon` (double)**: Longitude of the destination waypoint (in degrees).
-- **`horizontal_tilt` (double)**: Horizontal tilt of the boat (in degrees). Currently unused.
-- **`vertical_tilt` (double)**: Vertical tilt of the boat (in degrees). Currently unused.
-- **`compass` (double)**: The boat's compass heading in degrees (0° = North, 90° = East, etc.).
-- **`wind_vane` (double)**: The relative wind direction in degrees, indicating from where the wind is coming (0° = headwind, 90° = wind from the right, etc.).
+- **Intelligent Upwind Navigation**: Optimizes Velocity Made Good (VMG) for upwind legs
+- **Layline Detection**: Calculates optimal tacking points for efficient upwind sailing
+- **Tacking Hysteresis**: Prevents excessive tacking by applying decision smoothing
+- **Weather Awareness**: Adapts strategies based on wind speed and direction
 
-## **Returns**
+### Class Structure
 
-- **`double`**: The optimal sailing direction in degrees (0° = North, 360° = Full circle).
+```cpp
+class LaylinePathPlanner {
+private:
+    // State tracking variables
+    double last_decision_time;
+    double start_time;
+    bool on_port_tack;
+    bool direct_sailing;
+    
+    // Constants for tuning behavior
+    static constexpr double WAYPOINT_ARRIVAL_DISTANCE = 15.0;
+    static constexpr double WAYPOINT_TIGHT_ARRIVAL_DISTANCE = 7.0;
+    static constexpr double DECISION_COOLDOWN = 4.0;
+    static constexpr double MINIMUM_INITIAL_TIME = 7.0;
+    static constexpr double TACK_HYSTERESIS_ANGLE_MARGIN = 8.0;
+    static constexpr double NO_GO_ZONE_BUFFER = 7.0;
 
-    - If the azimuth is outside the no-go zone, it returns the azimuth as the optimal direction.
-    - If the azimuth is within the no-go zone, the function computes two escape routes (10 degrees outside the no-go zone) and returns the route closest to the original azimuth.
+public:
+    // Constructor
+    LaylinePathPlanner();
+    
+    // Main path planning method
+    double calculate_direction(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon,
+                              double compass, double wind_vane, double wind_speed, double current_time);
+    
+    // Reset planner state
+    void reset_planner_state();
+    
+    // Static utility methods
+    static double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon);
+    static double calculate_distance(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon);
+    static void define_no_go_zone(double wind_vane, double wind_speed, double *min_angle, double *max_angle);
+    static bool is_in_no_go_zone(double azimuth, double min_angle, double max_angle);
+};
+```
 
-## **How It Works**
+## Static Utility Methods
 
-1. **Azimuth Calculation**: The function first calculates the azimuth from the boat’s current position to the waypoint.
-2. **No-Go Zone Calculation**: The function defines the no-go zone based on the wind direction, typically extending ±45° to the left and right of the wind direction.
-3. **Check No-Go Zone**: If the azimuth falls outside the no-go zone, it is returned as the optimal direction.
-4. **Escape Route**: If the azimuth falls within the no-go zone, the function calculates two escape routes and returns the one closest to the azimuth.
+### `calculate_azimuth` Method
 
----
+**Description**
+Calculates the azimuth (bearing) from the boat's position to a waypoint.
 
-## **Example Usage**
+**Prototype**
+```cpp
+static double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon);
+```
 
-### **Code Example**
+**Parameters**
+- `boat_lat`: Boat's latitude in decimal degrees
+- `boat_lon`: Boat's longitude in decimal degrees
+- `waypoint_lat`: Waypoint's latitude in decimal degrees
+- `waypoint_lon`: Waypoint's longitude in decimal degrees
 
-```c
-#include <stdio.h>
-#include <math.h>
+**Returns**
+- The azimuth in degrees (0-360°) from the boat to the waypoint
 
-// Assuming necessary functions like calculate_azimuth, define_no_go_zone, and is_in_no_go_zone are already defined
+**Example Usage**
+
+```cpp
+#include "pathPlanification.h"
 
 int main() {
-    // Boat and waypoint coordinates
-    double boat_lat = 48.8566, boat_lon = 2.3522; // Latitude and Longitude of the boat (e.g., Paris)
-    double waypoint_lat = 48.8570, waypoint_lon = 2.3530; // Latitude and Longitude of the waypoint
+    double boat_lat = 48.8566, boat_lon = 2.3522;  // Paris
+    double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
+    
+    double azimuth = LaylinePathPlanner::calculate_azimuth(boat_lat, boat_lon, waypoint_lat, waypoint_lon);
+    printf("Azimuth to waypoint: %.2f°\n", azimuth);
+    return 0;
+}
+```
 
-    // Additional parameters
-    double horizontal_tilt = 0.0;  // Boat horizontal tilt (no tilt)
-    double vertical_tilt = 0.0;    // Boat vertical tilt (no tilt)
-    double compass = 90.0;         // Boat's compass heading (east)
-    double wind_vane = 180.0;      // Wind direction (coming from behind)
+**Expected Output**
+```
+Azimuth to waypoint: 45.72°
+```
 
-    // Calculate the optimal sailing direction
-    double direction = calculate_direction(boat_lat, boat_lon, waypoint_lat, waypoint_lon,
-                                           horizontal_tilt, vertical_tilt, compass, wind_vane);
+### `calculate_distance` Method
+
+**Description**
+Calculates the distance in meters between two GPS coordinates using the haversine formula.
+
+**Prototype**
+```cpp
+static double calculate_distance(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon);
+```
+
+**Parameters**
+- `boat_lat`: Boat's latitude in decimal degrees
+- `boat_lon`: Boat's longitude in decimal degrees
+- `waypoint_lat`: Waypoint's latitude in decimal degrees
+- `waypoint_lon`: Waypoint's longitude in decimal degrees
+
+**Returns**
+- The distance in meters between the two points
+
+**Example Usage**
+
+```cpp
+double distance = LaylinePathPlanner::calculate_distance(48.8566, 2.3522, 48.8570, 2.3530);
+printf("Distance to waypoint: %.2f meters\n", distance);
+```
+
+**Expected Output**
+```
+Distance to waypoint: 59.24 meters
+```
+
+### `define_no_go_zone` Method
+
+**Description**
+Defines the no-go zone (angles where the boat cannot sail directly) based on the wind direction.
+
+**Prototype**
+```cpp
+static void define_no_go_zone(double wind_vane, double wind_speed, double *min_angle, double *max_angle);
+```
+
+**Parameters**
+- `wind_vane`: Wind direction in degrees (0-360°)
+- `wind_speed`: Wind speed in m/s (affects the size of the no-go zone)
+- `min_angle`: Pointer to store the minimum angle of the no-go zone
+- `max_angle`: Pointer to store the maximum angle of the no-go zone
+
+**Returns**
+- None (updates the values pointed by min_angle and max_angle)
+
+**Example Usage**
+
+```cpp
+double min_angle, max_angle;
+double wind_direction = 180.0;  // Wind from the south
+double wind_speed = 5.0;  // 5 m/s wind speed
+
+LaylinePathPlanner::define_no_go_zone(wind_direction, wind_speed, &min_angle, &max_angle);
+printf("Wind Direction: %.2f°\n", wind_direction);
+printf("No-Go Zone: [%.2f° to %.2f°]\n", min_angle, max_angle);
+```
+
+**Expected Output**
+```
+Wind Direction: 180.00°
+No-Go Zone: [135.00° to 225.00°]
+```
+
+### `is_in_no_go_zone` Method
+
+**Description**
+Determines if a given azimuth falls within the no-go zone.
+
+**Prototype**
+```cpp
+static bool is_in_no_go_zone(double azimuth, double min_angle, double max_angle);
+```
+
+**Parameters**
+- `azimuth`: Direction to check in degrees (0-360°)
+- `min_angle`: Minimum angle of the no-go zone in degrees
+- `max_angle`: Maximum angle of the no-go zone in degrees
+
+**Returns**
+- `true` if the azimuth is in the no-go zone, `false` otherwise
+
+**Example Usage**
+
+```cpp
+double min_angle = 135.0, max_angle = 225.0;
+double direction_to_check = 180.0;
+
+bool in_no_go = LaylinePathPlanner::is_in_no_go_zone(direction_to_check, min_angle, max_angle);
+printf("Direction %.2f° is %s the no-go zone\n", 
+       direction_to_check, in_no_go ? "inside" : "outside");
+```
+
+**Expected Output**
+```
+Direction 180.00° is inside the no-go zone
+```
+
+## Main Path Planning Method
+
+### `calculate_direction` Method
+
+**Description**
+The main path planning method that determines the optimal sailing direction based on the waypoint location, wind conditions, and boat state.
+
+**Prototype**
+```cpp
+double calculate_direction(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon,
+                          double compass, double wind_vane, double wind_speed, double current_time);
+```
+
+**Parameters**
+- `boat_lat`: Boat's latitude in decimal degrees
+- `boat_lon`: Boat's longitude in decimal degrees
+- `waypoint_lat`: Waypoint's latitude in decimal degrees
+- `waypoint_lon`: Waypoint's longitude in decimal degrees
+- `compass`: Current boat heading in degrees
+- `wind_vane`: Wind direction relative to boat in degrees
+- `wind_speed`: Wind speed in m/s
+- `current_time`: Current time in seconds (used for decision timing)
+
+**Returns**
+- The optimal sailing direction in degrees (0-360°)
+
+**How It Works**
+
+1. Calculate the direct azimuth to the waypoint
+2. Determine the no-go zone based on wind direction
+3. Check if the direct path to the waypoint is in the no-go zone
+   - If not, sail directly to the waypoint
+   - If yes, implement tacking strategy:
+     - Determine which tack to use (port or starboard)
+     - Calculate laylines to the waypoint
+     - Switch tacks when crossing a layline
+     - Apply hysteresis to avoid frequent tack changes
+4. Return the optimal sailing direction
+
+**Example Usage**
+
+```cpp
+#include "pathPlanification.h"
+#include <stdio.h>
+
+int main() {
+    double boat_lat = 48.8566, boat_lon = 2.3522;  // Paris
+    double waypoint_lat = 48.8570, waypoint_lon = 2.3530;  // Nearby destination
+    double compass = 90.0;  // Boat facing east
+    double wind_vane = 0.0;  // Wind from north
+    double wind_speed = 5.0;  // 5 m/s
+    double current_time = 0.0;  // Starting time
+    
+    LaylinePathPlanner planner;
+    double direction = planner.calculate_direction(
+        boat_lat, boat_lon, waypoint_lat, waypoint_lon,
+        compass, wind_vane, wind_speed, current_time
+    );
 
     // Output the result
     printf("Optimal sailing direction: %.2f°\n", direction);
@@ -63,191 +259,42 @@ int main() {
 }
 ```
 
-### **Explanation of the Example**
-
-In this example:
-- The boat is located at **48.8566, 2.3522** (Paris) and the waypoint is **48.8570, 2.3530** (nearby).
-- The boat is facing **east (90°)** and the wind is coming directly from **behind (180°)**.
-- The `calculate_direction` function computes the azimuth towards the waypoint and checks if it falls within the no-go zone due to wind conditions.
-
-### **Expected Output**
-
+**Expected Output**
 ```
 Optimal sailing direction: 45.72°
 ```
 
----
+## Using the Path Planner in the Main Program
 
-# `calculate_azimuth` Function Documentation
+In the main program, the path planner is used in the `pathFinding` task:
 
-## **Description**
-
-The `calculate_azimuth` function computes the azimuth (bearing) from the boat's GPS location to the waypoint's GPS location. The azimuth is the angle (in degrees) measured clockwise from **true North (0°)** to the direction of the waypoint.
-
-## **Prototype**
-
-```c
-#include <math.h>
-double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon);
-```
-
-## **Parameters**
-
-- `boat_lat` *(double)*: Latitude of the boat in decimal degrees.
-- `boat_lon` *(double)*: Longitude of the boat in decimal degrees.
-- `waypoint_lat` *(double)*: Latitude of the waypoint in decimal degrees.
-- `waypoint_lon` *(double)*: Longitude of the waypoint in decimal degrees.
-
-## **Returns**
-
-- *(double)*: The azimuth angle (0° to 360°) indicating the direction from the boat to the waypoint relative to true North.
-
-## **Example Usage**
-
-### **Code Example**
-
-```c
-#include <stdio.h>
-#include <math.h>
-#define PI 3.14159265358979323846
-
-double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon) {
-    double dLon = (waypoint_lon - boat_lon) * (PI / 180.0);
-    double lat1 = boat_lat * (PI / 180.0);
-    double lat2 = waypoint_lat * (PI / 180.0);
-
-    double y = sin(dLon) * cos(lat2);
-    double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
-    double azimuth = atan2(y, x) * (180.0 / PI);
-
-    return fmod(azimuth + 360.0, 360.0);
-}
-
-int main() {
-    double boat_lat = 48.8566, boat_lon = 2.3522;
-    double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
+```cpp
+void pathFinding(void* pvParameters) {
+    // Create planner instance
+    LaylinePathPlanner planner;
     
-    double azimuth = calculate_azimuth(boat_lat, boat_lon, waypoint_lat, waypoint_lon);
-    printf("Azimuth to waypoint: %.2f°\n", azimuth);
-    return 0;
-}
-```
-
-### **Expected Output**
-
-```
-Azimuth to waypoint: 45.72°
-```
-
----
-
-# `define_no_go_zone` Function Documentation
-
-## **Description**
-
-The `define_no_go_zone` function determines the no-go zone for a sailboat based on the wind direction. This zone represents the range of angles where the boat **cannot sail effectively** due to the wind being too direct. The zone typically extends ±45° from the wind direction.
-
-## **Prototype**
-
-```c
-void define_no_go_zone(double wind_vane, double *min_angle, double *max_angle);
-```
-
-## **Parameters**
-
-| Parameter    | Type     | Description |
-|--------------|----------|-------------|
-| `wind_vane`  | `double` | Wind direction **relative to North** (0-360°). |
-| `min_angle` | `double*` | Pointer to store the **minimum angle** of the no-go zone. |
-| `max_angle` | `double*` | Pointer to store the **maximum angle** of the no-go zone. |
-
-## **Returns**
-
-- This function **modifies** the values of `min_angle` and `max_angle` via pointers.
-
-## **Example Usage**
-
-```c
-#include <stdio.h>
-#include <math.h>
-
-#define NoGoZone 45.0
-
-void define_no_go_zone(double wind_vane, double *min_angle, double *max_angle) {
-    double wind_abs = fmod(wind_vane + 360.0, 360.0);
-    *min_angle = fmod(wind_abs - NoGoZone + 360.0, 360.0);
-    *max_angle = fmod(wind_abs + NoGoZone, 360.0);
-}
-
-int main() {
-    double wind_vane = 180.0;  // Wind is coming from the South
-    double min_angle, max_angle;
-
-    define_no_go_zone(wind_vane, &min_angle, &max_angle);
-
-    printf("Wind Direction: %.2f°\n", wind_vane);
-    printf("No-Go Zone: [%.2f° to %.2f°]\n", min_angle, max_angle);
-
-    return 0;
-}
-```
-
-### **Expected Output**
-
-```
-Wind Direction: 180.00°
-No-Go Zone: [135.00° to 225.00°]
-```
-
----
-
-# `is_in_no_go_zone` Function Documentation
-
-## **Description**
-
-The `is_in_no_go_zone` function checks whether a given azimuth angle lies within a predefined no-go zone. This no-go zone is determined based on the wind direction, and it is the area where the boat cannot sail effectively.
-
-## **Parameters**
-
-- **`azimuth` (double)**: The azimuth angle representing the boat’s current heading.
-- **`min_angle` (double)**: The minimum angle of the no-go zone.
-- **`max_angle` (double)**: The maximum angle of the no-go zone.
-
-## **Returns**
-
-- **Returns `1`** if the azimuth is within the no-go zone.
-- **Returns `0`** if the azimuth is outside the no-go zone.
-
-## **Example Usage**
-
-```c
-#include <stdio.h>
-#include <math.h>
-
-int is_in_no_go_zone(double azimuth, double min_angle, double max_angle) {
-    if (min_angle < max_angle)
-        return (azimuth >= min_angle && azimuth <= max_angle);
-    else
-        return (azimuth >= min_angle || azimuth <= max_angle);
-}
-
-int main() {
-    double azimuth = 50.0;
-    double min_angle = 135.0;
-    double max_angle = 225.0;
-
-    if (is_in_no_go_zone(azimuth, min_angle, max_angle)) {
-        printf("The azimuth %.2f° is in the no-go zone.\n", azimuth);
-    } else {
-        printf("The azimuth %.2f° is NOT in the no-go zone.\n", azimuth);
+    while (true) {
+        // Get current position and sensors data
+        double boat_lat = sharedData.latitude;
+        double boat_lon = sharedData.longitude;
+        double waypoint_lat = 48.8570;  // Set your actual waypoint
+        double waypoint_lon = 2.3530;   // Set your actual waypoint
+        
+        double compass = sharedData.angle_from_north;
+        double wind_vane = sharedData.wind_vane;
+        double wind_speed = 5.0;  // Update with actual wind speed when available
+        double current_time = millis() / 1000.0;
+        
+        // Calculate optimal direction
+        double targetAngle = planner.calculate_direction(
+            boat_lat, boat_lon, waypoint_lat, waypoint_lon,
+            compass, wind_vane, wind_speed, current_time
+        );
+        
+        // Update shared data for servo control
+        sharedData.targetAngle = targetAngle;
+        
+        delay(100);  // Update frequency
     }
-
-    return 0;
 }
-```
-
-### **Expected Output**
-
-```
-The azimuth 50.00° is NOT in the no-go zone.
 ```
