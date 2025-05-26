@@ -7,6 +7,7 @@ typedef struct {
     double longitude;
     double compass;
     double wind_vane;
+    double wind_speed;
     double horizontal_tilt;
     double vertical_tilt;
     int targetAngle;
