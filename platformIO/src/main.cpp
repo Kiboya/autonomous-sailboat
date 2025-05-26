@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "gps.hpp"
 #include "pathPlanification.h"
 #include "cmps12.h"
 #include "qmc5883l.h"
@@ -10,6 +11,8 @@
 
 #define LED_PIN 25 // Broche LED pour Raspberry Pi Pico
 
+GNSS m_GNSS;
+
 servoControl boat;
 xbeeImpl xbee;
 SharedData sharedData;
@@ -17,9 +20,10 @@ SharedData sharedData;
 // Déclaration des tâches existantes
 void TaskBlink(void *pvParameters);
 void exampleTask(void *pvParameters);
-void xbeeTask(void *pvParameters);
 void controlTask(void *pvParameters);
 void pathFinding(void *pvParameters);
+void GpsVersPicoTask(void *pvParameters);
+void XbeeTask(void *pvParameters);
 // Nouvelle tâche pour les capteurs
 void sensorTask(void *pvParameters);
 void i2cScanTask(void *pvParameters);
@@ -36,19 +40,14 @@ CMPS12 cmps12(I2C0Instance, 0x60);
 void setup()
 {
   Serial.begin(115200);
+  while (!Serial)
+        ; // Attendre que la connexion série soit établie
+
+  m_GNSS.gpsInit();
 
   xTaskCreate(
     TaskBlink,  // Fonction de la tâche
     "LED Task", // Nom de la tâche
-    1024,       // Taille de la pile
-    NULL,       // Paramètre
-    1,          // Priorité
-    NULL        // Handle de tâche (inutile ici)
-  );
-
-  xTaskCreate(
-    xbeeTask,  // Fonction de la tâche
-    "Xbee data transceiver", // Nom de la tâche
     1024,       // Taille de la pile
     NULL,       // Paramètre
     1,          // Priorité
@@ -82,6 +81,24 @@ void setup()
     NULL        // Handle de tâche (inutile ici)
   );
 
+  xTaskCreate(
+        GpsVersPicoTask,        // Fonction de la tâche
+        "GpsVersPicoTask",      // Nom de la tâche
+        1024,                   // Taille de la pile
+        NULL,                   // Paramètre
+        1,                      // Priorité
+        NULL                    // Handle de tâche (inutile ici)
+    );
+
+    xTaskCreate(
+        XbeeTask,               // Fonction de la tâche
+        "XbeeTask",             // Nom de la tâche
+        1024,                   // Taille de la pile
+        NULL,                   // Paramètre
+        1,                      // Priorité
+        NULL                    // Handle de tâche (inutile ici)
+    );
+
   // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
   // vTaskStartScheduler();
 }
@@ -89,7 +106,15 @@ void setup()
 void loop()
 {
     // Rien ici, car FreeRTOS gère les tâches
+}
 
+void GpsVersPicoTask(void *pvParameters)
+{
+    while (1)
+    {
+        m_GNSS.lireFluxGPS();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }
 
 // Tâche pour faire clignoter la LED
@@ -105,7 +130,7 @@ void TaskBlink(void *pvParameters)
     }
 }
 
-void xbeeTask(void *pvParameters) {
+void XbeeTask(void *pvParameters) {
   while (1)
   {
     xbee.read();
@@ -125,9 +150,9 @@ void controlTask(void *pvParameters) {
 void sensorTask(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(10000));
     // Initialisation des capteurs
-    cmps12.begin(); 
+    cmps12.begin();
     // qmc5883l.begin();
-    
+
     // // Calibration du CMPS12
     // Serial.println("Starting CMPS12 Calibration...");
     // cmps12.startCalibration();
@@ -135,7 +160,7 @@ void sensorTask(void *pvParameters) {
     // vTaskDelay(pdMS_TO_TICKS(30000));
     // cmps12.endCalibration();
     // Serial.println("Calibration terminée. Début de la lecture des données.");
-    
+
     while (1) {
         // Lecture des données du CMPS12
         uint16_t compassBearing16 = cmps12.readCompassBearing();
@@ -156,10 +181,10 @@ void sensorTask(void *pvParameters) {
         Serial.print("Calibration State: ");
         Serial.println(calibrationState);
         Serial.println("-------------------------------------------------------");
-        
+
         //  // Lecture et calcul de l'orientation via QMC5883L
         //  float headingQMC = qmc5883l.getHeading();
-        
+
         Serial.print("Direction (CMPS12) : ");
         Serial.print(compassBearing16 / 10);
         Serial.print(".");
@@ -169,7 +194,7 @@ void sensorTask(void *pvParameters) {
         //  Serial.print(headingQMC);
         //  Serial.println(" degres");
         //  Serial.println("-------------------------------------------------------");
-        
+
         vTaskDelay(pdMS_TO_TICKS(500));
 
     }

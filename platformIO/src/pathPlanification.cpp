@@ -10,7 +10,7 @@
 double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, double waypoint_lon) {
     // Calculate the difference in longitude between the waypoint and the boat
     double dLon = (waypoint_lon - boat_lon) * (PI / 180.0);
-    
+
     // Convert the boat's latitude and the waypoint's latitude from degrees to radians
     double lat1 = boat_lat * (PI / 180.0);
     double lat2 = waypoint_lat * (PI / 180.0);
@@ -18,7 +18,7 @@ double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, 
     // Calculate the components of the azimuth
     double y = sin(dLon) * cos(lat2);
     double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
-    
+
     // Calculate the azimuth in radians and convert it to degrees
     double azimuth = atan2(y, x) * (180.0 / PI);
 
@@ -30,8 +30,8 @@ double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, 
 /**
  * @brief Defines the no-go zone based on the wind direction.
  *
- * This function calculates the no-go zone for a sailboat, which is the range of angles 
- * where the sailboat cannot sail effectively due to the wind direction. The no-go zone 
+ * This function calculates the no-go zone for a sailboat, which is the range of angles
+ * where the sailboat cannot sail effectively due to the wind direction. The no-go zone
  * is typically 45 degrees to the left and right of the wind direction.
  *
  * @param wind_vane The wind direction in degrees (0 to 360).
@@ -41,10 +41,10 @@ double calculate_azimuth(double boat_lat, double boat_lon, double waypoint_lat, 
 void define_no_go_zone(double wind_vane, double *min_angle, double *max_angle) {
     // Normalize the wind vane angle to be within 0 to 360 degrees
     double wind_abs = fmod(wind_vane + 360.0, 360.0);
-    
+
     // Calculate the minimum angle of the no-go zone, 45 degrees to the left of the wind direction
     *min_angle = fmod(wind_abs - NoGoZone + 360.0, 360.0);
-    
+
     // Calculate the maximum angle of the no-go zone, 45 degrees to the right of the wind direction
     *max_angle = fmod(wind_abs + NoGoZone, 360.0);
 }
@@ -53,8 +53,8 @@ void define_no_go_zone(double wind_vane, double *min_angle, double *max_angle) {
 /**
  * @brief Checks if the azimuth is within the no-go zone.
  *
- * This function determines whether the given azimuth angle falls within the no-go zone 
- * defined by the minimum and maximum angles. The no-go zone is the range of angles where 
+ * This function determines whether the given azimuth angle falls within the no-go zone
+ * defined by the minimum and maximum angles. The no-go zone is the range of angles where
  * the sailboat cannot sail effectively due to the wind direction.
  *
  * @param azimuth The azimuth angle to check.

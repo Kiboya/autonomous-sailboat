@@ -1,7 +1,11 @@
+.DS_Store
+platformIO/platformIO.code-workspace
+
 # Ignorer les fichiers temporaires et binaires
 *.pyc
 __pycache__/
 
 # Ignorer les environnements virtuels Python
 mon_env/
+
 
