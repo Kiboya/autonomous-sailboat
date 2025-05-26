@@ -18,3 +18,13 @@ Config:
         servo: null
         current: null
         target: null
+        latitude: null
+        longitude: null
+        compass: null
+        wind_vane: null
+        horizontal_tilt: null
+        vertical_tilt: null
+        target_angle: null
+        target_tension: null
+        angle_from_north: null
+
