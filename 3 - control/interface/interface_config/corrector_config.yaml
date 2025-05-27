@@ -11,6 +11,11 @@ Config:
       outputs:
         CAP: 0
 
+    - Name: planification
+      outputs:
+        POINT_LAT: 47.254414
+        POINT_LON: -1.369173
+
     - Name: received_value
       inputs:
         cap: null
