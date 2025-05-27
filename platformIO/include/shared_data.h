@@ -5,6 +5,9 @@
 typedef struct {
     double latitude;
     double longitude;
+    double altitude;
+    double waypoint_lat;
+    double waypoint_lon;
     double compass;
     double wind_vane;
     double wind_speed;

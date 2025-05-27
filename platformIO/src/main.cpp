@@ -214,8 +214,8 @@ void pathFinding(void *pvParameters) {
         // Use real sensor data when available, otherwise use test data
         double boat_lat = sharedData.latitude != 0.0 ? sharedData.latitude : 48.8566;
         double boat_lon = sharedData.longitude != 0.0 ? sharedData.longitude : 2.3522;
-        double waypoint_lat = 48.8570;  // Set your actual waypoint
-        double waypoint_lon = 2.3530;   // Set your actual waypoint
+        double waypoint_lat = sharedData.waypoint_lat != 0.0 ? sharedData.waypoint_lat : 47.253699;
+        double waypoint_lon = sharedData.waypoint_lon != 0.0 ? sharedData.waypoint_lon : -1.370199;
         
         double compass = sharedData.angleFromNorth != 0 ? sharedData.angleFromNorth : 90.0;
         double wind_vane = sharedData.wind_vane != 0.0 ? sharedData.wind_vane : 180.0; // Wind direction relative to boat
