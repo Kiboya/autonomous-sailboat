@@ -102,7 +102,7 @@ class Interface:
         with self.xbee_lock:  # Empêche l'accès concurrent au port série
             try:
                 self.xbee.send_key_value(name, value)
-                time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
+                time.sleep(1)  # Petite pause pour éviter les conflits d'écriture
             except Exception as e:
                 print(f"Erreur d'envoi XBee : {e}")
 
@@ -126,25 +126,26 @@ class Interface:
             if raw_data:
                 with self.xbee_lock:  # Sécurisation de l'accès au port série
                     try:
-                        # print(f"Envoi RTK : {raw_data.hex()}")
-                        # # self.xbee.send_key_value("RTK",raw_data.hex())
-                        # self.xbee.send_message(raw_data.hex())
+                        # print(f"Envoi RTK : {raw_data}")
+                        self.xbee.send_key_value("RTK",raw_data.hex())
+                        # self.xbee.send_message(raw_data)
                         # print(raw_data)
-                        data = [(f"{val:x}") for i, val in enumerate(raw_data)]
-                        msg=""
-                        for val in data:
-                            msg += val
 
-                        print(f"Envoi RTK : {data}")
-                        self.xbee.send_key_value("RTK", msg)
+                        # # gui 
+                        # data = [(f"{val:x}") for i, val in enumerate(raw_data)]
+                        # msg=""
+                        # for val in data:
+                        #     msg += val
+
+                        # print(f"Envoi RTK : {data}")
+                        # self.xbee.send_key_value("RTK", msg)
 
                         # sys.exit(0)
                         # for val in data:
                         #     self.xbee.send_key_value("RTK", val)
                             # print(f"Envoi RTK : {val}")
                         # self.xbee.send_message(raw_data)
-                        time.sleep(0.05)  # Petite pause pour éviter les conflits d'écriture
-                        # sys.exit(-1)
+                        time.sleep(0.5)  # Petite pause pour éviter les conflits d'écriture
                     except Exception as e:
                         print(f"Erreur d'envoi RTK : {e}")
                         sys.exit(-1)
@@ -160,7 +161,7 @@ def main():
 
     path = args.get("path", "interface_config/interface.yaml")
     port_xbee = args.get("port", "COM7")
-    baud_rate = args.get("baud_rate", 9600)
+    baud_rate = args.get("baud_rate", 115200)
 
     config = load_yaml_config(path)
 

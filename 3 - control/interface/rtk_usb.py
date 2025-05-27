@@ -91,7 +91,7 @@ class RTK:
 def main():
     parser = argparse.ArgumentParser(description="RTCM to USB Serial Forwarder")
     parser.add_argument('--port', required=True, help='Port série USB (ex: /dev/ttyUSB0 ou COM3)')
-    parser.add_argument('--baudrate', default=9600, type=int, help='Vitesse du port série (default: 9600)')
+    parser.add_argument('--baudrate', default=115200, type=int, help='Vitesse du port série (default: 115200)')
     args = parser.parse_args()
 
     try:
@@ -130,8 +130,8 @@ if __name__ == "__main__":
 # import serial
 # import time
 
-# # Ouvre le port série à 9600 bauds
-# ser = serial.Serial('/dev/ttyUSB0', 9600)
+# # Ouvre le port série à 115200 bauds
+# ser = serial.Serial('/dev/ttyUSB0', 115200)
 # time.sleep(2)  # Donne un peu de temps pour que le port s'initialise
 
 # # Envoie la chaîne "20\n"

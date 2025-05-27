@@ -2,73 +2,109 @@
 #include <unity.h>
 #include "pathPlanification.h"
 
-void setUp(void) {
-    // Runs before each test
-}
+// Test fixture
+LaylinePathPlanner planner;
 
+void setUp(void) {
+    // Reset planner state before each test
+    planner.reset_planner_state();
+}
 
 void tearDown(void) {
-    // Runs after each test
+    // Clean up after each test
 }
 
 // ------------------------
-// Test: calculate_azimuth
+// Test: Static Utility Functions
 // ------------------------
-void test_calculate_azimuth_basic(void) {
-    double azimuth = calculate_azimuth(48.8566, 2.3522, 48.8570, 2.3530);
+void test_calculate_azimuth(void) {
+    double azimuth = LaylinePathPlanner::calculate_azimuth(48.8566, 2.3522, 48.8570, 2.3530);
     TEST_ASSERT_FLOAT_WITHIN(0.5, 52.76, azimuth); // Adjust tolerance as needed
 }
 
-// ------------------------
-// Test: define_no_go_zone
-// ------------------------
-void test_define_no_go_zone_basic(void) {
+void test_calculate_distance(void) {
+    double distance = LaylinePathPlanner::calculate_distance(48.8566, 2.3522, 48.8570, 2.3530);
+    // ~50-60m distance depending on exact calculation
+    TEST_ASSERT_TRUE(distance > 45.0 && distance < 65.0);
+}
+
+void test_define_no_go_zone(void) {
     double min_angle, max_angle;
-    define_no_go_zone(90.0, &min_angle, &max_angle);
+    LaylinePathPlanner::define_no_go_zone(90.0, 5.0, &min_angle, &max_angle);
     TEST_ASSERT_FLOAT_WITHIN(0.1, 45.0, min_angle);
     TEST_ASSERT_FLOAT_WITHIN(0.1, 135.0, max_angle);
 }
 
-// ------------------------
-// Test: is_in_no_go_zone
-// ------------------------
-void test_is_in_no_go_zone_inside(void) {
-    TEST_ASSERT_TRUE(is_in_no_go_zone(90.0, 45.0, 135.0));
+void test_is_in_no_go_zone(void) {
+    // Test point inside no-go zone
+    TEST_ASSERT_TRUE(LaylinePathPlanner::is_in_no_go_zone(90.0, 45.0, 135.0));
+    
+    // Test point outside no-go zone
+    TEST_ASSERT_FALSE(LaylinePathPlanner::is_in_no_go_zone(200.0, 45.0, 135.0));
+    
+    // Test with zone wrapping around north
+    TEST_ASSERT_TRUE(LaylinePathPlanner::is_in_no_go_zone(350.0, 340.0, 10.0));
+    TEST_ASSERT_FALSE(LaylinePathPlanner::is_in_no_go_zone(20.0, 340.0, 10.0));
 }
 
-void test_is_in_no_go_zone_outside(void) {
-    TEST_ASSERT_FALSE(is_in_no_go_zone(200.0, 45.0, 135.0));
+// ------------------------
+// Test: Direct Path vs. Tacking Decision
+// ------------------------
+void test_direct_sailing_when_possible(void) {
+    // Waypoint is NOT in no-go zone relative to wind
+    double direction = planner.calculate_direction(
+        48.8566, 2.3522,     // boat position
+        48.8600, 2.3700,     // waypoint (~1km east-northeast)
+        90.0,                // compass heading (east)
+        270.0,               // wind from west (relative to boat)
+        5.0,                 // wind speed 5 m/s
+        0.0                  // current time
+    );
+    
+    // Direction should be close to direct route since wind is favorable
+    double direct_azimuth = LaylinePathPlanner::calculate_azimuth(48.8566, 2.3522, 48.8600, 2.3700);
+    TEST_ASSERT_FLOAT_WITHIN(10.0, direct_azimuth, direction);
 }
 
-// ------------------------
-// Test: calculate_direction
-// ------------------------
-void test_calculate_direction_outside_no_go_zone(void) {
-    double direction = calculate_direction(48.8566, 2.3522, 48.8570, 2.3530,
-                                           0.0, 0.0, 90.0, 0.0);
-    TEST_ASSERT_FLOAT_WITHIN(1.0, 52.76, direction);
-}
-
-void test_calculate_direction_inside_no_go_zone(void) {
-    // Should return an escape route
-    double direction = calculate_direction(48.8566, 2.3522, 48.8570, 2.3530,
-                                           0.0, 0.0, 0.0, 0.0); // Wind from 0°, azimuth ≈ 52°, inside No-Go
-    TEST_ASSERT_TRUE(direction != 52.76); // Should NOT be original azimuth
-    TEST_ASSERT_TRUE(direction > 0.0 && direction < 360.0);
+void test_tacking_when_necessary(void) {
+    // Waypoint IS in no-go zone relative to wind (wind from direction of waypoint)
+    double direction = planner.calculate_direction(
+        48.8566, 2.3522,     // boat position
+        48.8600, 2.3530,     // waypoint (north)
+        0.0,                 // compass heading (north)
+        0.0,                 // wind from north (relative to boat)
+        5.0,                 // wind speed 5 m/s
+        0.0                  // current time
+    );
+    
+    // Direct azimuth would be 0 degrees (north), but we can't sail there
+    // Direction should be on one of the tacks, not directly toward waypoint
+    double direct_azimuth = LaylinePathPlanner::calculate_azimuth(48.8566, 2.3522, 48.8600, 2.3530);
+    TEST_ASSERT_TRUE(fabs(direction - direct_azimuth) > 20.0);
+    
+    // Direction should be one of the optimal tack angles
+    // Either port tack (315° ±20°) or starboard tack (45° ±20°)
+    bool is_valid_tack = (fabs(fmod(direction - 315.0 + 360.0, 360.0)) < 20.0) || 
+                         (fabs(fmod(direction - 45.0 + 360.0, 360.0)) < 20.0);
+    TEST_ASSERT_TRUE(is_valid_tack);
 }
 
 // ------------------------
 // Unity Main Function
 // ------------------------
 void setup() {
+    delay(2000);  // Give serial port time to connect
     UNITY_BEGIN();
 
-    RUN_TEST(test_calculate_azimuth_basic);
-    RUN_TEST(test_define_no_go_zone_basic);
-    RUN_TEST(test_is_in_no_go_zone_inside);
-    RUN_TEST(test_is_in_no_go_zone_outside);
-    RUN_TEST(test_calculate_direction_outside_no_go_zone);
-    RUN_TEST(test_calculate_direction_inside_no_go_zone);
+    // Test static utility functions
+    RUN_TEST(test_calculate_azimuth);
+    RUN_TEST(test_calculate_distance);
+    RUN_TEST(test_define_no_go_zone);
+    RUN_TEST(test_is_in_no_go_zone);
+    
+    // Test path planning behavior
+    RUN_TEST(test_direct_sailing_when_possible);
+    RUN_TEST(test_tacking_when_necessary);
 
     UNITY_END();
 }
@@ -76,5 +112,3 @@ void setup() {
 void loop() {
     // Required by Arduino framework
 }
-
-

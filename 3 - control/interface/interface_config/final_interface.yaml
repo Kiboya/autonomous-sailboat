@@ -7,10 +7,6 @@ Config:
         KP: 0.1
         KI: 0.1
 
-    - Name: control
-      outputs:
-        CAP: 0
-
     - Name: planification
       outputs:
         POINT_LAT: 47.254414

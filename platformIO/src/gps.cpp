@@ -1,4 +1,5 @@
 #include "gps.hpp"
+#include "shared_data.h"
 
 TwoWire I2C1Instance(i2c1, 2, 3);
 
@@ -99,10 +100,14 @@ void GNSS::lireFluxGPS()
 
         Serial.print("Latitude : ");
         Serial.print(latitude, 7);
+        sharedData.latitude = latitude; // Stocker la latitude dans sharedData
         Serial.print(", Longitude : ");
         Serial.print(longitude, 7);
+        sharedData.longitude = longitude;
         Serial.print(", Altitude : ");
         Serial.print(altitude, 2);
+        sharedData.altitude = altitude;
+
         Serial.println(" m");
     }
     else
