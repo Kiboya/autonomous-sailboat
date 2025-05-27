@@ -204,11 +204,8 @@ void sensorTask(void *pvParameters) {
 
 
 void pathFinding(void *pvParameters) {
-    pinMode(3, OUTPUT);
-    
     // Create static instance of LaylinePathPlanner
     static LaylinePathPlanner laylinePlanner;
-    
     int iteration = 0;
     
     while (1) {
@@ -244,10 +241,5 @@ void pathFinding(void *pvParameters) {
         // Update shared data with calculated direction
         sharedData.targetAngle = (int)round(direction);
         
-        // LED indication
-        digitalWrite(3, LOW);
-        vTaskDelay(pdMS_TO_TICKS(100));
-        digitalWrite(3, HIGH);
-        vTaskDelay(pdMS_TO_TICKS(2900)); // 3 second total cycle
     }
 }
