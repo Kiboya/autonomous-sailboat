@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "xbeeImpl.h"
 #include "shared_data.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 xbeeImpl::xbeeImpl()
 {
@@ -11,9 +13,13 @@ xbeeImpl::xbeeImpl()
     pinMode(rtk_rx_pin, INPUT);
     pinMode(rtk_tx_pin, OUTPUT);
     digitalWrite(XBee_reset_pin, LOW);
-    delay(10);
-    digitalWrite(XBee_reset_pin, HIGH);
     pinMode(XBee_dout_pin, INPUT);
+    digitalWrite(XBee_reset_pin, HIGH);
+}
+
+void xbeeImpl::initialize()
+{
+    vTaskDelay(pdMS_TO_TICKS(10));
     Serial1.setRX(XBee_dout_pin);
     Serial1.setTX(XBee_din_pin);
     Serial1.begin(9600, SERIAL_8N1);

@@ -131,6 +131,8 @@ void TaskBlink(void *pvParameters)
 }
 
 void XbeeTask(void *pvParameters) {
+  // Initialisation de l'interface série pour XBee
+  xbee.initialize();
   while (1)
   {
     xbee.read();
