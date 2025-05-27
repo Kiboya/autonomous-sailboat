@@ -82,22 +82,22 @@ void setup()
   );
 
   xTaskCreate(
-        GpsVersPicoTask,        // Fonction de la tâche
-        "GpsVersPicoTask",      // Nom de la tâche
-        1024,                   // Taille de la pile
-        NULL,                   // Paramètre
-        1,                      // Priorité
-        NULL                    // Handle de tâche (inutile ici)
-    );
+    GpsVersPicoTask,        // Fonction de la tâche
+    "GpsVersPicoTask",      // Nom de la tâche
+    1024,                   // Taille de la pile
+    NULL,                   // Paramètre
+    1,                      // Priorité
+    NULL                    // Handle de tâche (inutile ici)
+  );
 
-    xTaskCreate(
-        XbeeTask,               // Fonction de la tâche
-        "XbeeTask",             // Nom de la tâche
-        1024,                   // Taille de la pile
-        NULL,                   // Paramètre
-        1,                      // Priorité
-        NULL                    // Handle de tâche (inutile ici)
-    );
+  xTaskCreate(
+    XbeeTask,               // Fonction de la tâche
+    "XbeeTask",             // Nom de la tâche
+    1024,                   // Taille de la pile
+    NULL,                   // Paramètre
+    1,                      // Priorité
+    NULL                    // Handle de tâche (inutile ici)
+  );
 
   // Démarrer le planificateur FreeRTOS (optionnel sur Arduino)
   // vTaskStartScheduler();
@@ -136,7 +136,6 @@ void XbeeTask(void *pvParameters) {
   while (1)
   {
     xbee.read();
-    xbee.getValue();
     xbee.send(sharedData);
   }
 }
@@ -226,5 +225,6 @@ void pathFinding(void *pvParameters) {
         digitalWrite(3, LOW);
         vTaskDelay(pdMS_TO_TICKS(10)); // Attendre 1s
         digitalWrite(3, HIGH);
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }

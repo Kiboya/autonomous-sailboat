@@ -156,7 +156,7 @@ void GNSS::gpsInit()
     if (!myGNSS.begin(I2C1Instance, ZED_F9P_I2C_ADDRESS))
     {
         Serial.println("Erreur : Impossible de communiquer avec le ZED-F9P !");
-        while (1); // Bloquer si échec
+        // while (1); // Bloquer si échec
     }
 
     Serial.println("Initialisation du GPS par I2C terminée.");

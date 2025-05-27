@@ -12,17 +12,18 @@ xbeeImpl::xbeeImpl()
     pinMode(XBee_din_pin, OUTPUT);
     pinMode(rtk_rx_pin, INPUT);
     pinMode(rtk_tx_pin, OUTPUT);
-    digitalWrite(XBee_reset_pin, LOW);
-    pinMode(XBee_dout_pin, INPUT);
-    digitalWrite(XBee_reset_pin, HIGH);
 }
 
 void xbeeImpl::initialize()
 {
-    vTaskDelay(pdMS_TO_TICKS(10));
+    digitalWrite(XBee_reset_pin, LOW);
+    delay(10);
+    digitalWrite(XBee_reset_pin, HIGH);
+    // pinMode(XBee_dout_pin, INPUT);
+
     Serial1.setRX(XBee_dout_pin);
     Serial1.setTX(XBee_din_pin);
-    Serial1.begin(9600, SERIAL_8N1);
+    Serial1.begin(115200, SERIAL_8N1);
 
     Serial2.setRX(rtk_rx_pin);
     Serial2.setTX(rtk_tx_pin);
@@ -46,18 +47,21 @@ void xbeeImpl::read()
                 }
             }
         }
+        Serial.print("receivedMessage: ");
         Serial.println(receivedMessage);
         receivedMessage.trim();
         Serial2.write((const uint8_t *)receivedMessage.c_str(), receivedMessage.length());
-    }
 
+        getValue(receivedMessage);
+    }
     delay(100);
 }
 
-void xbeeImpl::getValue()
+void xbeeImpl::getValue(String receivedMessage)
 {
     // Find the position of the ':'
     int separatorIndex = receivedMessage.indexOf(':');
+    Serial.println(receivedMessage);
 
     if (separatorIndex != -1)
     {
@@ -69,21 +73,35 @@ void xbeeImpl::getValue()
         if (key == "ki")
         {
             Ki = value.toFloat();
-            Serial.print("ki value: ");
-            Serial.println(Ki);
+            // Serial.print("ki value: ");
+            // Serial.println(Ki);
         }
         else if (key == "kp")
         {
             Kp = value.toFloat();
-            Serial.print("kp value: ");
-            Serial.println(Kp);
+            // Serial.print("kp value: ");
+            // Serial.println(Kp);
         }
         else if (key == "rtk")
         {
             rtk = value;
-            Serial.println(rtk);
+            // Serial.println(rtk);
             Serial2.print(rtk);
-            Serial.println("rtk value sended to GPS");
+            // Serial.println("rtk value sended to GPS");
+        }
+        else if (key == "point_lon")
+        {
+            lon = value.toDouble();
+            sharedData.waypoint_lon = lon;
+            // Serial.println(lon);
+            // Serial.println("rtk value sended to GPS");
+        }
+        else if (key == "point_lat")
+        {
+            lat = value.toDouble();
+            sharedData.waypoint_lat = lat;
+            // Serial.println(rtk);
+            // Serial.println("rtk value sended to GPS");
         }
         else
         {

@@ -18,6 +18,8 @@ private:
     // PID Parameters
     float Kp = 1.0;
     float Ki = 1.0;
+    double lon = 0.0;
+    double lat = 0.0;
 
     // RTK Parameter
     String rtk = "";
@@ -33,7 +35,7 @@ public:
     // Read from Serial1(xbee) and write to Serial2 (for RTK)
     void read();
     // Parse the last received message and extract key-value pairs
-    void getValue();
+    void getValue(String receivedMessage);
     // Send shared data to Serial1(xbee) if values have changed
     void send(const SharedData& data) const;
 
