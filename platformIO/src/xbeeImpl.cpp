@@ -109,55 +109,55 @@ void xbeeImpl::send(const SharedData& data) const
     static int prev_angle_from_north = -1;
 
     if (data.latitude != prev_lat) {
-        Serial1.print("latitude: ");
+        Serial1.print("latitude:");
         Serial1.println(data.latitude, 6);  // 6 decimal precision
         prev_lat = data.latitude;
     }
 
     if (data.longitude != prev_lon) {
-        Serial1.print("longitude: ");
+        Serial1.print("longitude:");
         Serial1.println(data.longitude, 6);
         prev_lon = data.longitude;
     }
 
     if (data.compass != prev_compass) {
-        Serial1.print("compass: ");
+        Serial1.print("compass:");
         Serial1.println(data.compass, 2);
         prev_compass = data.compass;
     }
 
     if (data.wind_vane != prev_wind) {
-        Serial1.print("wind vane: ");
+        Serial1.print("wind_vane:");
         Serial1.println(data.wind_vane, 2);
         prev_wind = data.wind_vane;
     }
 
     if (data.horizontal_tilt != prev_h_tilt) {
-        Serial1.print("horizontal tilt: ");
+        Serial1.print("horizontal_tilt:");
         Serial1.println(data.horizontal_tilt, 2);
         prev_h_tilt = data.horizontal_tilt;
     }
 
     if (data.vertical_tilt != prev_v_tilt) {
-        Serial1.print("vertical tilt: ");
+        Serial1.print("vertical_tilt:");
         Serial1.println(data.vertical_tilt, 2);
         prev_v_tilt = data.vertical_tilt;
     }
 
     if (data.targetAngle != prev_target_angle) {
-        Serial1.print("target angle: ");
+        Serial1.print("target_angle:");
         Serial1.println(data.targetAngle);
         prev_target_angle = data.targetAngle;
     }
 
     if (data.targetTension != prev_target_tension) {
-        Serial1.print("target tension: ");
+        Serial1.print("target_tension:");
         Serial1.println(data.targetTension);
         prev_target_tension = data.targetTension;
     }
 
     if (data.angleFromNorth != prev_angle_from_north) {
-        Serial1.print("angle from north: ");
+        Serial1.print("angle_from_north:");
         Serial1.println(data.angleFromNorth);
         prev_angle_from_north = data.angleFromNorth;
     }

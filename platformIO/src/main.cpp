@@ -205,26 +205,49 @@ void sensorTask(void *pvParameters) {
 
 void pathFinding(void *pvParameters) {
     pinMode(3, OUTPUT);
-    int i= 0;
+    
+    // Create static instance of LaylinePathPlanner
+    static LaylinePathPlanner laylinePlanner;
+    
+    int iteration = 0;
+    
     while (1) {
-        i++;
-        double boat_lat = 48.8566, boat_lon = 2.3522;
-        double waypoint_lat = 48.8570, waypoint_lon = 2.3530;
-        double horizontal_tilt = 0.0, vertical_tilt = 0.0;
-        double compass = 90.0, wind_vane = 0.0;
-        Serial.printf("Boat Latitude: %.4f\n", boat_lat);
-        Serial.printf("Boat Longitude: %.4f\n", boat_lon);
-        Serial.printf("Waypoint Latitude: %.4f\n", waypoint_lat);
-        Serial.printf("Waypoint Longitude: %.4f\n", waypoint_lon);
-        Serial.printf("Horizontal Tilt: %.2f\n", horizontal_tilt);
-        Serial.printf("Vertical Tilt: %.2f\n", vertical_tilt);
-        Serial.printf("Compass: %.2f\n", compass);
-        Serial.printf("Wind Vane: %.2f\n", wind_vane);
-        double direction = calculate_direction(boat_lat, boat_lon, waypoint_lat, waypoint_lon, horizontal_tilt, vertical_tilt, compass, wind_vane);
-        Serial.printf("Iteration: %d\n", i);
-        Serial.printf("Optimal direction: %.2f°\n", direction);
+        iteration++;
+        
+        // Use real sensor data when available, otherwise use test data
+        double boat_lat = sharedData.latitude != 0.0 ? sharedData.latitude : 48.8566;
+        double boat_lon = sharedData.longitude != 0.0 ? sharedData.longitude : 2.3522;
+        double waypoint_lat = 48.8570;  // Set your actual waypoint
+        double waypoint_lon = 2.3530;   // Set your actual waypoint
+        
+        double compass = sharedData.angleFromNorth != 0 ? sharedData.angleFromNorth : 90.0;
+        double wind_vane = sharedData.wind_vane != 0.0 ? sharedData.wind_vane : 180.0; // Wind direction relative to boat
+        double wind_speed = sharedData.wind_speed != 0.0 ? sharedData.wind_speed : 5.0; // Wind speed
+
+        // Get current time in seconds (convert from millis)
+        double current_time = millis() / 1000.0;
+        
+        Serial.printf("=== Path Planning Iteration %d ===\n", iteration);
+        Serial.printf("Boat Position: %.6f, %.6f\n", boat_lat, boat_lon);
+        Serial.printf("Waypoint: %.6f, %.6f\n", waypoint_lat, waypoint_lon);
+        Serial.printf("Compass: %.1f°, Wind: %.1f° @ %.1f m/s\n", compass, wind_vane, wind_speed);
+        
+        // Calculate optimal direction using LaylinePathPlanner
+        double direction = laylinePlanner.calculate_direction(
+            boat_lat, boat_lon, waypoint_lat, waypoint_lon,
+            compass, wind_vane, wind_speed, current_time
+        );
+        
+        Serial.printf("Optimal direction: %.1f°\n", direction);
+        Serial.println("================================\n");
+        
+        // Update shared data with calculated direction
+        sharedData.targetAngle = (int)round(direction);
+        
+        // LED indication
         digitalWrite(3, LOW);
-        vTaskDelay(pdMS_TO_TICKS(10)); // Attendre 1s
+        vTaskDelay(pdMS_TO_TICKS(100));
         digitalWrite(3, HIGH);
+        vTaskDelay(pdMS_TO_TICKS(2900)); // 3 second total cycle
     }
 }
