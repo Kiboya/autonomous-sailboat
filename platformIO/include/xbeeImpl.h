@@ -27,6 +27,9 @@ private:
 
 public:
     xbeeImpl();
+
+    // Initialize the XBee and RTK serial ports
+    void initialize();
     // Read from Serial1(xbee) and write to Serial2 (for RTK)
     void read();
     // Parse the last received message and extract key-value pairs

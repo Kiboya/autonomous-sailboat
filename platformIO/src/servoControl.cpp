@@ -7,8 +7,6 @@
 // Constructor
 servoControl::servoControl()
 {
-    Serial.begin(9600);
-
     // Safran setup
     safranServo.attach(safranPin);
     safranServo.writeMicroseconds(init_safran);
@@ -16,8 +14,6 @@ servoControl::servoControl()
     // Sail setup
     sailServo.attach(sailPin);
     sailServo.writeMicroseconds(init_sail);
-
-    Serial.println("Servo control initialized.");
 }
 
 void servoControl::servo_control(const xbeeImpl &xbee)
