@@ -113,6 +113,7 @@ void GpsVersPicoTask(void *pvParameters)
     while (1)
     {
         m_GNSS.lireFluxGPS();
+        Serial.print("GPS");
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -240,6 +241,7 @@ void pathFinding(void *pvParameters) {
         
         // Update shared data with calculated direction
         sharedData.targetAngle = (int)round(direction);
+        vTaskDelay(pdMS_TO_TICKS(1000));
         
     }
 }

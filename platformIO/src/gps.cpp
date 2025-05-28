@@ -114,7 +114,7 @@ void GNSS::lireFluxGPS()
     {
        Serial.println("Pas de données GNSS disponibles.");
     }
-    delay(1000);
+    //delay(1000);
 }
 
 void GNSS::configurerUART_RX2()
