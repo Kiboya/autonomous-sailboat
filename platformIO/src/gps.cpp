@@ -68,7 +68,7 @@ void GNSS::lireFluxGPS()
 {
     if (myGNSS.getPVT())
     {
-        if (myGNSS.getRELPOSNED()) // Si on reçois des corrections RTK
+        if (myGNSS.getRELPOSNED()) // Si on reçoit des corrections RTK
         {
             uint8_t fixType = myGNSS.packetUBXNAVPVT->data.fixType;
             uint8_t carrSoln = myGNSS.packetUBXNAVRELPOSNED->data.flags.bits.carrSoln;
@@ -104,6 +104,29 @@ void GNSS::lireFluxGPS()
         Serial.print(", Altitude : ");
         Serial.print(altitude, 2);
         Serial.println(" m");
+
+        // Détection des types de messages RTCM
+        std::vector<uint8_t> detectRTCMMessageTypes(const std::vector<uint8_t>& data) {
+            std::vector<uint8_t> types;
+            size_t i = 0;
+            while (i < data.size() - 5) {
+                if (data[i] == 0xD3) {
+                    uint16_t length = ((data[i + 1] & 0x03) << 8) | data[i + 2];
+                    if (i + 3 + length > data.size()) {
+                        break; // Incomplet
+                    }
+                    std::vector<uint8_t> payload(data.begin() + i + 3, data.begin() + i + 3 + length);
+                    if (payload.size() >= 3) {
+                        uint16_t msgType = (payload[0] << 4) | (payload[1] >> 4);
+                        types.push_back(msgType);
+                    }
+                    i += 3 + length + 3; // +3 pour le CRC
+                } else {
+                    i++;
+                }
+            }
+            return types;
+        }
     }
     else
     {
