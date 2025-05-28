@@ -8,20 +8,16 @@
 // Value safran
 const int min_angle_safran = 70;
 const int max_angle_safran = 170;
-const int init_angle_safran = 125;
-const int min_ms_safran = 960;
-const int max_ms_safran = 1640;
-const int init_safran = 1300;
+const int min_ms_safran = 1260;
+const int max_ms_safran = 1740;
+const int init_safran = 1500;
 
 // value sails
-const int min_angle_sail = 0;
-const int max_angle_sail = 100;
-const int init_angle_sail = 100;
-const int min_ms_sail = 1320;
-const int max_ms_sail = 1800;
-const int init_sail = 1800;
+const int min_ms_sail = 1200;
+const int max_ms_sail = 1780;
+const int init_sail = 1700;
 
-const int safranPin = 3;
+const int safranPin = 5;
 const int sailPin = 28;
 
 class servoControl
@@ -31,7 +27,6 @@ private:
     Servo sailServo;
 
     // Control Parameters
-    int currentTension = 0;
     int servoAnglePosition = 125;
     int voileTensionPosition = 100;
     int ms_safran_position;
@@ -47,7 +42,6 @@ public:
     int calculateShortestPath(int current, int target);
 
     // Getters for Control Parameters
-    int getCurrentTension() const { return currentTension; }
     int getServoAnglePosition() const { return servoAnglePosition; }
     int getVoileTensionPosition() const { return voileTensionPosition; }
     int getSafranPosition() const { return ms_safran_position; }

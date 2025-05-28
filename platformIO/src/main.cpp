@@ -137,6 +137,7 @@ void XbeeTask(void *pvParameters) {
   {
     xbee.read();
     xbee.send(sharedData);
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
@@ -144,6 +145,7 @@ void controlTask(void *pvParameters) {
   while (1)
   {
     boat.servo_control(xbee);
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 

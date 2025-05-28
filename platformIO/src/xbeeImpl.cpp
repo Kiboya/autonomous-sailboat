@@ -47,14 +47,14 @@ void xbeeImpl::read()
                 }
             }
         }
-        Serial.print("receivedMessage: ");
-        Serial.println(receivedMessage);
+        // Serial.print("receivedMessage: ");
+        // Serial.println(receivedMessage);
         receivedMessage.trim();
         Serial2.write((const uint8_t *)receivedMessage.c_str(), receivedMessage.length());
 
         getValue(receivedMessage);
     }
-    delay(100);
+    vTaskDelay(pdMS_TO_TICKS(100));
 }
 
 void xbeeImpl::getValue(String receivedMessage)
@@ -82,6 +82,18 @@ void xbeeImpl::getValue(String receivedMessage)
             // Serial.print("kp value: ");
             // Serial.println(Kp);
         }
+        if (key == "tension")
+        {
+            sharedData.targetTension = value.toFloat();
+            Serial.print("targetTension value: ");
+            Serial.println(sharedData.targetTension);
+        }
+        else if (key == "cap")
+        {
+            sharedData.targetAngle = value.toFloat();
+            Serial.print("targetAngle value: ");
+            Serial.println(sharedData.targetAngle);
+        }
         else if (key == "rtk")
         {
             rtk = value;
@@ -105,7 +117,7 @@ void xbeeImpl::getValue(String receivedMessage)
         }
         else
         {
-            Serial.println("Invalid key. Expected 'kp', 'ki' or 'rtk.");
+            Serial.println("Invalid key. Expected 'kp', 'ki', 'point_lat', 'point_lon' or 'rtk'.");
         }
     }
     else

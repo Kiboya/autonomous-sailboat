@@ -21,6 +21,7 @@ void servoControl::servo_control(const xbeeImpl &xbee)
     int targetAngle = sharedData.targetAngle;
     int targetTension = sharedData.targetTension;
     int angleFromNorth = sharedData.angleFromNorth;
+
     float Kp = xbee.getKp();
     float Ki = xbee.getKi();
 
@@ -37,12 +38,12 @@ void servoControl::servo_control(const xbeeImpl &xbee)
     safranServo.writeMicroseconds(ms_safran_position);
 
     // Update sail servo position with the new adjustment
-    ms_sail_position = map(voileTensionPosition, min_angle_sail, max_angle_sail, min_ms_sail, max_ms_sail);
-    safranServo.writeMicroseconds(ms_sail_position);
+    sailServo.writeMicroseconds(max_ms_sail);
 
-    // // Reset values for the next loop if needed
-    // servoAnglePosition = init_angle_safran;
-    // ms_safran_position = init_safran;
+    Serial.print("servoAnglePosition:");
+    Serial.println(servoAnglePosition);
+    Serial.print("ms_safran_position:");
+    Serial.println(ms_safran_position);
 }
 
 int servoControl::calculateShortestPath(int current, int target)
