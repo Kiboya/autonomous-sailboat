@@ -59,6 +59,10 @@ void xbeeImpl::read()
 
 void xbeeImpl::getValue(String receivedMessage)
 {
+    if (receivedMessage.length() == 0)
+    {
+        return;
+    }
     // Find the position of the ':'
     int separatorIndex = receivedMessage.indexOf(':');
     Serial.println(receivedMessage);
