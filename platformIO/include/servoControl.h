@@ -47,6 +47,7 @@ public:
     int getSafranPosition() const { return ms_safran_position; }
     int getSailPosition() const { return ms_sail_position; }
 
+
     // Getters for PI Control Variables
     float getAdjustement() const { return adjustment; }
     float getCumulateError() const { return cumulateError; }

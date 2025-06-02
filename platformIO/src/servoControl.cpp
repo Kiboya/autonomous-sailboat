@@ -38,7 +38,10 @@ void servoControl::servo_control(const xbeeImpl &xbee)
     safranServo.writeMicroseconds(ms_safran_position);
 
     // Update sail servo position with the new adjustment
-    sailServo.writeMicroseconds(max_ms_sail);
+    ms_sail_position = getSailPosition();
+    // sailServo.writeMicroseconds(max_ms_sail);
+    sailServo.writeMicroseconds(ms_sail_position);
+
 
     Serial.print("servoAnglePosition:");
     Serial.println(servoAnglePosition);
@@ -58,4 +61,33 @@ int servoControl::calculateShortestPath(int current, int target)
         angleDifference += 360;
     }
     return angleDifference;
+}
+
+int servoControl::getSailPosition()
+{
+
+    windAngle = (sharedData.wind_vane + 360) % 360;
+    int sailTension = 0;
+
+    if (windAngle >= 330 || windAngle <= 30)
+    {
+        sailTension = 0;
+    }
+    if ((windAngle > 30 && windAngle <= 60) || (windAngle >= 300 && windAngle < 330))
+    {
+        sailTension = 30;
+    }
+
+    if ((windAngle > 60 && windAngle <= 120) || (windAngle >= 240 && windAngle < 300))
+    {
+        sailTension = 60;
+    }
+
+    if (windAngle > 120 && windAngle < 240)
+    {
+        sailTension = 100; 
+    }
+
+    int sailTension_ms = map(sailTension, 0, 100, min_ms_sail, max_ms_sail);
+    return sailTension_ms;
 }
